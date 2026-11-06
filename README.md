@@ -44,7 +44,7 @@ pnpm db:seed
 pnpm dev
 ```
 
-Open http://localhost:3000 and sign in with demo@ecclesia.app / Ecclesia-Demo-2026. Set ECCLESIA_SHOW_DEMO_LOGIN=true in .env to show these details on the sign-in page.
+Open http://localhost:3100 and sign in with demo@ecclesia.app / Ecclesia-Demo-2026. Set ECCLESIA_SHOW_DEMO_LOGIN=true in .env to show these details on the sign-in page.
 
 ## Everyday commands
 
