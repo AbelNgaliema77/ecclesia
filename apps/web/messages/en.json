@@ -51,7 +51,8 @@
     "signUpFailed": "We couldn't create that account. The email may already be registered.",
     "demoHint": "Demo: demo@ecclesia.app / Ecclesia-Demo-2026",
     "verse": "Let all things be done decently and in order.",
-    "verseRef": "1 Corinthians 14:40"
+    "verseRef": "1 Corinthians 14:40",
+    "signInUnavailable": "We couldn't sign you in right now. Check that the app and database are running, then try again."
   },
   "onboarding": {
     "title": "Set up your church",

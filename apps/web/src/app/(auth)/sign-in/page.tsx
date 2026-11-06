@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
+import { getSession } from "@/server/context";
 import { env } from "@/server/env";
 import { SignInForm } from "./sign-in-form";
 
 export const metadata: Metadata = { title: "Sign in" };
 
 export default async function SignInPage() {
+  if (await getSession()) redirect("/");
   const t = await getTranslations("auth");
   return (
     <>

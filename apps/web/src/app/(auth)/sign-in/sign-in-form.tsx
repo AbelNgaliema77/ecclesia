@@ -29,7 +29,7 @@ export function SignInForm() {
     });
     if (signInError) {
       setPending(false);
-      setError(t("invalidCredentials"));
+      setError(signInError.status === 401 ? t("invalidCredentials") : t("signInUnavailable"));
       return;
     }
     router.replace(safeNext(params.get("next")) as "/");

@@ -51,7 +51,8 @@
     "signUpFailed": "Impossible de créer ce compte. L'adresse e-mail est peut-être déjà enregistrée.",
     "demoHint": "Démo : demo@ecclesia.app / Ecclesia-Demo-2026",
     "verse": "Que tout se fasse avec bienséance et avec ordre.",
-    "verseRef": "1 Corinthiens 14:40"
+    "verseRef": "1 Corinthiens 14:40",
+    "signInUnavailable": "Connexion impossible pour le moment. Vérifiez que l'application et la base de données fonctionnent, puis réessayez."
   },
   "onboarding": {
     "title": "Configurer votre église",

@@ -17,10 +17,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (hasSession && isPublic) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
   return NextResponse.next();
 }
 

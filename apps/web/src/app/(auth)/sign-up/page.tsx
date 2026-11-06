@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { getSession } from "@/server/context";
 import { SignUpForm } from "./sign-up-form";
 
 export const metadata: Metadata = { title: "Create account" };
 
 export default async function SignUpPage() {
+  if (await getSession()) redirect("/");
   const t = await getTranslations("auth");
   return (
     <>
