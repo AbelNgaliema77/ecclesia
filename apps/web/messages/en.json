@@ -174,11 +174,15 @@
     "forbidden": "You don't have permission to do that.",
     "validation": "Some fields need attention.",
     "unexpected": "Something went wrong on our side. Try again in a moment.",
-    "subscription.readOnly": "Ecclesia is read-only until the subscription is updated.",
-    "person.invalidStatusTransition": "That status change isn't allowed. Move people one step at a time along their growth path.",
     "slugTaken": "That short name is already in use. Try another.",
     "notFound": "That record no longer exists.",
-    "generic": "Check this value."
+    "generic": "Check this value.",
+    "subscription": {
+      "readOnly": "Ecclesia is read-only until the subscription is updated."
+    },
+    "person": {
+      "invalidStatusTransition": "That status change isn't allowed. Move people one step at a time along their growth path."
+    }
   },
   "common": {
     "cancel": "Cancel",

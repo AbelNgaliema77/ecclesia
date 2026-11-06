@@ -174,11 +174,15 @@
     "forbidden": "Vous n'avez pas l'autorisation de faire cela.",
     "validation": "Certains champs sont à vérifier.",
     "unexpected": "Une erreur est survenue de notre côté. Réessayez dans un instant.",
-    "subscription.readOnly": "Ecclesia est en lecture seule jusqu'à la mise à jour de l'abonnement.",
-    "person.invalidStatusTransition": "Ce changement de statut n'est pas autorisé. Faites avancer chaque personne une étape à la fois.",
     "slugTaken": "Ce nom court est déjà utilisé. Essayez-en un autre.",
     "notFound": "Cet élément n'existe plus.",
-    "generic": "Vérifiez cette valeur."
+    "generic": "Vérifiez cette valeur.",
+    "subscription": {
+      "readOnly": "Ecclesia est en lecture seule jusqu'à la mise à jour de l'abonnement."
+    },
+    "person": {
+      "invalidStatusTransition": "Ce changement de statut n'est pas autorisé. Faites avancer chaque personne une étape à la fois."
+    }
   },
   "common": {
     "cancel": "Annuler",
