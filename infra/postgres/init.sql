@@ -1,0 +1,9 @@
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'ecclesia_app') THEN
+    CREATE ROLE ecclesia_app LOGIN PASSWORD 'ecclesia_app' NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE;
+  END IF;
+END
+$$;
+
+GRANT CONNECT ON DATABASE ecclesia TO ecclesia_app;

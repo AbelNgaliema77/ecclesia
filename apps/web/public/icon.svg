@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>Ecclesia</title>
+  <rect width="512" height="512" rx="112" fill="#0f4c45"/>
+  <path d="M256 104c-62 0-112 50-112 112v192h64V280h96v128h64V216c0-62-50-112-112-112Z" fill="#f5f6f4"/>
+  <rect x="244" y="150" width="24" height="88" rx="4" fill="#b8862b"/>
+  <rect x="214" y="180" width="84" height="24" rx="4" fill="#b8862b"/>
+</svg>

@@ -1,0 +1,188 @@
+{
+  "app": {
+    "name": "Ecclesia",
+    "tagline": "Gestion d'église"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "people": "Personnes",
+    "teams": "Équipes",
+    "attendance": "Présences",
+    "finance": "Finances",
+    "inventory": "Inventaire",
+    "settings": "Paramètres",
+    "soon": "Bientôt",
+    "main": "Navigation principale"
+  },
+  "shell": {
+    "switchChurch": "Changer d'église",
+    "signOut": "Se déconnecter",
+    "language": "Langue",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "demo": "Église de démonstration. Les données sont fictives et peuvent être réinitialisées à tout moment.",
+    "readOnly": "Votre abonnement demande votre attention. Ecclesia est en lecture seule jusqu'à la mise à jour du paiement.",
+    "trialEnds": "L'essai gratuit se termine le {date}."
+  },
+  "auth": {
+    "signInTitle": "Connexion",
+    "signInLead": "Utilisez l'adresse e-mail et le mot de passe de votre compte d'église.",
+    "signUpTitle": "Créer votre compte",
+    "signUpLead": "Vous pourrez configurer votre église à l'étape suivante.",
+    "name": "Nom complet",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "passwordHint": "Au moins 10 caractères.",
+    "signIn": "Se connecter",
+    "signUp": "Créer le compte",
+    "noAccount": "Nouveau sur Ecclesia ?",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "createOne": "Créer un compte",
+    "signInInstead": "Se connecter",
+    "invalidCredentials": "Cet e-mail et ce mot de passe ne correspondent pas. Vérifiez-les et réessayez.",
+    "signUpFailed": "Impossible de créer ce compte. L'adresse e-mail est peut-être déjà enregistrée.",
+    "demoHint": "Démo : demo@ecclesia.app / Ecclesia-Demo-2026"
+  },
+  "onboarding": {
+    "title": "Configurer votre église",
+    "lead": "Cela crée l'espace de votre église avec des rôles, des catégories de présence et des horaires de culte par défaut. Vous pourrez tout modifier ensuite.",
+    "churchName": "Nom de l'église",
+    "slug": "Nom court",
+    "slugHint": "Lettres minuscules, chiffres et tirets. Utilisé dans les liens.",
+    "language": "Langue principale",
+    "submit": "Créer l'église"
+  },
+  "locked": {
+    "title": "L'abonnement de cette église a pris fin",
+    "lead": "Vos données sont en sécurité. Réactivez l'abonnement pour vous reconnecter, ou contactez l'administrateur de votre église.",
+    "signOut": "Se déconnecter"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "greeting": "Bon retour, {name}",
+    "averageAttendance": "Moyenne par culte",
+    "lastMonth": "en {month}",
+    "change": "{value, number, ::sign-always .0} % par rapport au mois précédent",
+    "noChange": "Aucun mois précédent pour comparer",
+    "firstTimers": "Nouveaux visiteurs",
+    "last30Days": "ces 30 derniers jours",
+    "activePeople": "Personnes dans l'annuaire",
+    "serving": "{count, plural, one {# sert dans une équipe} other {# servent dans des équipes}}",
+    "trendTitle": "Présences par mois",
+    "trendLead": "Moyenne par culte, répartie par catégorie. Les bandes ombrées indiquent les temps liturgiques.",
+    "recentServices": "Cultes récents",
+    "viewAll": "Voir tous les cultes",
+    "noData": "Aucune présence n'a encore été saisie. Saisissez votre premier culte pour voir les tendances ici.",
+    "captureFirst": "Saisir un culte",
+    "seasons": {
+      "lent": "Carême",
+      "easter": "Pâques",
+      "advent": "Avent",
+      "christmas": "Noël"
+    }
+  },
+  "people": {
+    "title": "Personnes",
+    "lead": "Toutes les personnes liées à l'église, des nouveaux visiteurs aux responsables.",
+    "add": "Ajouter une personne",
+    "searchLabel": "Rechercher des personnes",
+    "searchPlaceholder": "Nom, e-mail ou téléphone",
+    "allStatuses": "Tous les statuts",
+    "statusFilter": "Statut",
+    "columns": {
+      "name": "Nom",
+      "status": "Statut",
+      "phone": "Téléphone",
+      "email": "E-mail",
+      "firstVisit": "Première visite"
+    },
+    "count": "{count, plural, =0 {Aucune personne} one {# personne} other {# personnes}}",
+    "empty": "Personne ne correspond à cette recherche. Essayez un autre nom ou effacez les filtres.",
+    "emptyDirectory": "L'annuaire est vide. Ajoutez la première personne pour commencer.",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page {page} sur {pages}",
+    "newTitle": "Ajouter une personne",
+    "editTitle": "Modifier {name}",
+    "back": "Retour aux personnes",
+    "statusHistory": "Historique du statut",
+    "fields": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "preferredName": "Nom d'usage",
+      "gender": "Sexe",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "dateOfBirth": "Date de naissance",
+      "status": "Statut",
+      "firstVisitOn": "Première visite",
+      "notes": "Notes"
+    },
+    "sections": {
+      "identity": "Identité",
+      "contact": "Coordonnées",
+      "church": "Vie d'église"
+    },
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "notSpecified": "Non précisé",
+    "status": {
+      "visitor": "Visiteur",
+      "regular": "Habitué",
+      "member": "Membre",
+      "worker": "Ouvrier",
+      "leader": "Responsable",
+      "inactive": "Inactif"
+    },
+    "gender": {
+      "male": "Homme",
+      "female": "Femme"
+    }
+  },
+  "teams": {
+    "title": "Équipes",
+    "lead": "Les départements, leurs postes, et qui occupe chaque poste aujourd'hui.",
+    "positions": "{count, plural, one {# poste} other {# postes}}",
+    "people": "{count, plural, one {# personne} other {# personnes}}",
+    "vacant": "Vacant",
+    "lead_badge": "Dirige l'équipe",
+    "empty": "Aucune équipe pour l'instant. Les équipes et leurs postes apparaîtront ici une fois créés."
+  },
+  "attendance": {
+    "title": "Présences",
+    "lead": "Saisissez le nombre de personnes par culte et par catégorie. Les chiffres peuvent être corrigés et chaque modification est enregistrée.",
+    "newService": "Commencer un culte",
+    "serviceType": "Culte",
+    "date": "Date",
+    "start": "Ouvrir le comptage",
+    "recent": "Cultes récents",
+    "total": "Total",
+    "notCaptured": "Non saisi",
+    "captureTitle": "Comptage",
+    "captureLead": "Comptez chaque section puis enregistrez. Un nouvel enregistrement remplace les chiffres précédents.",
+    "increase": "Ajouter un à {category}",
+    "decrease": "Retirer un à {category}",
+    "save": "Enregistrer le comptage",
+    "saved": "Comptage enregistré",
+    "back": "Retour aux présences",
+    "empty": "Aucun culte pour l'instant. Commencez le premier ci-dessus."
+  },
+  "errors": {
+    "required": "Ce champ est obligatoire.",
+    "invalidPhone": "Saisissez un numéro composé uniquement de chiffres, par exemple +27821234567.",
+    "futureDate": "Cette date ne peut pas être dans le futur.",
+    "forbidden": "Vous n'avez pas l'autorisation de faire cela.",
+    "validation": "Certains champs sont à vérifier.",
+    "unexpected": "Une erreur est survenue de notre côté. Réessayez dans un instant.",
+    "subscription.readOnly": "Ecclesia est en lecture seule jusqu'à la mise à jour de l'abonnement.",
+    "person.invalidStatusTransition": "Ce changement de statut n'est pas autorisé. Faites avancer chaque personne une étape à la fois.",
+    "slugTaken": "Ce nom court est déjà utilisé. Essayez-en un autre.",
+    "notFound": "Cet élément n'existe plus.",
+    "generic": "Vérifiez cette valeur."
+  },
+  "common": {
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "optional": "facultatif"
+  }
+}
