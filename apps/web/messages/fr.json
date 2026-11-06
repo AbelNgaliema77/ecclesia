@@ -12,7 +12,8 @@
     "inventory": "Inventaire",
     "settings": "Paramètres",
     "soon": "Bientôt",
-    "main": "Navigation principale"
+    "main": "Navigation principale",
+    "home": "Accueil"
   },
   "shell": {
     "switchChurch": "Changer d'église",
@@ -22,7 +23,14 @@
     "closeMenu": "Fermer le menu",
     "demo": "Église de démonstration. Les données sont fictives et peuvent être réinitialisées à tout moment.",
     "readOnly": "Votre abonnement demande votre attention. Ecclesia est en lecture seule jusqu'à la mise à jour du paiement.",
-    "trialEnds": "L'essai gratuit se termine le {date}."
+    "trialEnds": "L'essai gratuit se termine le {date}.",
+    "account": "Compte",
+    "theme": {
+      "label": "Thème",
+      "system": "Comme l’appareil",
+      "light": "Clair",
+      "dark": "Sombre"
+    }
   },
   "auth": {
     "signInTitle": "Connexion",
@@ -41,7 +49,9 @@
     "signInInstead": "Se connecter",
     "invalidCredentials": "Cet e-mail et ce mot de passe ne correspondent pas. Vérifiez-les et réessayez.",
     "signUpFailed": "Impossible de créer ce compte. L'adresse e-mail est peut-être déjà enregistrée.",
-    "demoHint": "Démo : demo@ecclesia.app / Ecclesia-Demo-2026"
+    "demoHint": "Démo : demo@ecclesia.app / Ecclesia-Demo-2026",
+    "verse": "Que tout se fasse avec bienséance et avec ordre.",
+    "verseRef": "1 Corinthiens 14:40"
   },
   "onboarding": {
     "title": "Configurer votre église",
@@ -79,7 +89,18 @@
       "easter": "Pâques",
       "advent": "Avent",
       "christmas": "Noël"
-    }
+    },
+    "heroLead": "Voici comment se porte {church}.",
+    "quick": {
+      "title": "Actions rapides",
+      "capture": "Saisir un comptage",
+      "captureLead": "Compter le culte du jour",
+      "addPerson": "Ajouter une personne",
+      "addPersonLead": "Enregistrer un visiteur ou un membre",
+      "teams": "Voir les équipes",
+      "teamsLead": "Postes et postes vacants"
+    },
+    "perService": "par culte"
   },
   "people": {
     "title": "Personnes",
@@ -188,5 +209,18 @@
     "cancel": "Annuler",
     "saving": "Enregistrement…",
     "optional": "facultatif"
+  },
+  "palette": {
+    "trigger": "Rechercher une personne ou une page",
+    "label": "Menu de commandes",
+    "placeholder": "Rechercher des personnes, pages et actions",
+    "searching": "Recherche…",
+    "empty": "Aucun résultat. Essayez un autre nom ou une autre page.",
+    "people": "Personnes",
+    "actions": "Actions",
+    "navigate": "Aller à",
+    "hint": "Entrée pour ouvrir, Échap pour fermer",
+    "captureHeadcount": "Saisir un comptage",
+    "addPerson": "Ajouter une personne"
   }
 }

@@ -1,9 +1,10 @@
-import { displayName, PERSON_STATUSES } from "@ecclesia/domain/people";
-import { Plus, Search } from "lucide-react";
+import { displayName, initials, PERSON_STATUSES } from "@ecclesia/domain/people";
+import { Plus, Search, UsersRound } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { buttonClasses } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input, Select } from "@/components/ui/field";
 import { PageHeader } from "@/components/ui/page-header";
 import { loadPeople, parsePeopleSearch } from "@/modules/people/queries";
@@ -12,6 +13,12 @@ import { StatusBadge } from "@/modules/people/status-badge";
 export const metadata: Metadata = { title: "People" };
 
 type PageProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
+
+const AVATAR_TONES = [
+  "bg-brand-soft text-brand-soft-ink",
+  "bg-gold-soft text-gold-ink",
+  "bg-muted text-ink-soft",
+] as const;
 
 export default async function PeoplePage({ searchParams }: PageProps) {
   const search = parsePeopleSearch(await searchParams);
@@ -49,7 +56,7 @@ export default async function PeoplePage({ searchParams }: PageProps) {
 
       <form
         aria-label={t("searchLabel")}
-        className="flex flex-col gap-3 sm:flex-row sm:items-center"
+        className="card flex flex-col gap-3 p-3 sm:flex-row sm:items-center"
       >
         <div className="relative flex-1">
           <label htmlFor="people-search" className="sr-only">
@@ -57,14 +64,14 @@ export default async function PeoplePage({ searchParams }: PageProps) {
           </label>
           <Search
             aria-hidden
-            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-faint"
+            className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-ink-faint"
           />
           <Input
             id="people-search"
             name="q"
             defaultValue={search.q}
             placeholder={t("searchPlaceholder")}
-            className="pl-9"
+            className="pl-10"
             type="search"
           />
         </div>
@@ -81,50 +88,54 @@ export default async function PeoplePage({ searchParams }: PageProps) {
             ))}
           </Select>
         </div>
-        <button type="submit" className={buttonClasses("secondary")}>
+        <button type="submit" className={buttonClasses("soft")}>
           {t("searchLabel")}
         </button>
       </form>
 
-      <p className="text-sm text-ink-faint" aria-live="polite">
+      <p className="text-sm font-medium text-ink-faint" aria-live="polite">
         {t("count", { count: data.total })}
       </p>
 
       {data.rows.length === 0 ? (
-        <div className="rounded-panel border border-dashed border-line-strong p-10 text-ink-soft">
-          {filtered ? t("empty") : t("emptyDirectory")}
-        </div>
+        <EmptyState icon={UsersRound} message={filtered ? t("empty") : t("emptyDirectory")} />
       ) : (
-        <div className="overflow-hidden rounded-panel border border-line bg-surface">
+        <div className="card overflow-hidden">
           <table className="w-full text-left text-[0.9375rem]">
-            <thead className="border-b border-line bg-paper/60 text-sm text-ink-soft">
+            <thead className="border-b border-line text-xs font-semibold text-ink-faint">
               <tr>
-                <th scope="col" className="px-4 py-3 font-medium">
+                <th scope="col" className="px-5 py-3.5">
                   {t("columns.name")}
                 </th>
-                <th scope="col" className="px-4 py-3 font-medium">
+                <th scope="col" className="px-4 py-3.5">
                   {t("columns.status")}
                 </th>
-                <th scope="col" className="hidden px-4 py-3 font-medium md:table-cell">
+                <th scope="col" className="hidden px-4 py-3.5 md:table-cell">
                   {t("columns.phone")}
                 </th>
-                <th scope="col" className="hidden px-4 py-3 font-medium lg:table-cell">
+                <th scope="col" className="hidden px-4 py-3.5 lg:table-cell">
                   {t("columns.email")}
                 </th>
-                <th scope="col" className="hidden px-4 py-3 font-medium sm:table-cell">
+                <th scope="col" className="hidden px-5 py-3.5 sm:table-cell">
                   {t("columns.firstVisit")}
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {data.rows.map((person) => (
-                <tr key={person.id} className="group hover:bg-sanctuary-50/50">
-                  <td className="px-4 py-3">
+              {data.rows.map((person, index) => (
+                <tr key={person.id} className="group transition-colors hover:bg-muted">
+                  <td className="px-5 py-3">
                     <Link
                       href={`/people/${person.id}`}
-                      className="font-medium text-ink group-hover:text-sanctuary-800"
+                      className="flex items-center gap-3 font-semibold"
                     >
-                      {displayName(person)}
+                      <span
+                        aria-hidden
+                        className={`inline-flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${AVATAR_TONES[index % AVATAR_TONES.length]}`}
+                      >
+                        {initials(person)}
+                      </span>
+                      <span className="group-hover:text-accent">{displayName(person)}</span>
                     </Link>
                   </td>
                   <td className="px-4 py-3">
@@ -136,7 +147,7 @@ export default async function PeoplePage({ searchParams }: PageProps) {
                   <td className="hidden max-w-64 truncate px-4 py-3 text-ink-soft lg:table-cell">
                     {person.email ?? "–"}
                   </td>
-                  <td className="hidden px-4 py-3 text-ink-soft sm:table-cell">
+                  <td className="hidden px-5 py-3 text-ink-soft sm:table-cell">
                     {person.firstVisitOn
                       ? format.dateTime(person.firstVisitOn, {
                           dateStyle: "medium",
@@ -163,7 +174,7 @@ export default async function PeoplePage({ searchParams }: PageProps) {
           ) : (
             <span />
           )}
-          <span className="text-ink-faint">
+          <span className="font-medium text-ink-faint">
             {t("page", { page: search.page, pages: data.pages })}
           </span>
           {search.page < data.pages ? (

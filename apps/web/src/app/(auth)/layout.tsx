@@ -1,31 +1,44 @@
+import { CalendarCheck2, HandCoins, UsersRound } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { LocaleSwitcher } from "@/components/shell/locale-switcher";
 import { Wordmark } from "@/components/shell/wordmark";
 
 export default async function AuthLayout({ children }: { children: ReactNode }) {
-  const t = await getTranslations("app");
+  const [t, tn, ta] = await Promise.all([
+    getTranslations("app"),
+    getTranslations("nav"),
+    getTranslations("auth"),
+  ]);
+  const chips = [
+    { icon: UsersRound, label: tn("people") },
+    { icon: CalendarCheck2, label: tn("attendance") },
+    { icon: HandCoins, label: tn("finance") },
+  ];
   return (
-    <div className="grid min-h-dvh lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-      <aside className="relative hidden overflow-hidden bg-sanctuary-800 p-12 text-sanctuary-50 lg:flex lg:flex-col lg:justify-between">
+    <div className="grid min-h-dvh gap-3 p-3 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+      <aside className="hero relative hidden overflow-hidden rounded-hero p-10 lg:flex lg:flex-col lg:justify-between">
         <Wordmark inverted />
-        <div className="max-w-sm">
-          <p className="font-display text-[2rem] leading-tight font-light">
-            “Let all things be done decently and in order.”
+        <div className="relative max-w-md">
+          <p className="font-display text-[2.75rem] leading-[1.05] font-bold tracking-tight">
+            {ta("verse")}
           </p>
-          <p className="mt-4 text-sm text-sanctuary-200">1 Corinthians 14:40</p>
+          <p className="mt-4 text-sm font-medium text-hero-ink-soft">{ta("verseRef")}</p>
+          <ul className="mt-10 flex flex-wrap gap-2">
+            {chips.map(({ icon: Icon, label }) => (
+              <li
+                key={label}
+                className="glass inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold"
+              >
+                <Icon aria-hidden className="size-4" />
+                {label}
+              </li>
+            ))}
+          </ul>
         </div>
-        <p className="text-sm text-sanctuary-200">{t("tagline")}</p>
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-24 -bottom-24 size-[28rem] rounded-full border border-sanctuary-500/40"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-8 -bottom-8 size-[18rem] rounded-full border border-candle-500/40"
-        />
+        <p className="text-sm text-hero-ink-soft">{t("tagline")}</p>
       </aside>
-      <main className="flex flex-col px-6 py-8 sm:px-12">
+      <main className="flex flex-col px-3 py-4 sm:px-10">
         <div className="flex items-center justify-between">
           <span className="lg:invisible">
             <Wordmark />

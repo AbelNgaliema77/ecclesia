@@ -12,7 +12,8 @@
     "inventory": "Inventory",
     "settings": "Settings",
     "soon": "Soon",
-    "main": "Main navigation"
+    "main": "Main navigation",
+    "home": "Home"
   },
   "shell": {
     "switchChurch": "Switch church",
@@ -22,7 +23,14 @@
     "closeMenu": "Close menu",
     "demo": "Demo church. Data here is fictional and can be reset at any time.",
     "readOnly": "Your subscription needs attention. Ecclesia is read-only until payment is updated.",
-    "trialEnds": "Free trial ends {date}."
+    "trialEnds": "Free trial ends {date}.",
+    "account": "Account",
+    "theme": {
+      "label": "Theme",
+      "system": "Match device",
+      "light": "Light",
+      "dark": "Dark"
+    }
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -41,7 +49,9 @@
     "signInInstead": "Sign in",
     "invalidCredentials": "That email and password don't match. Check them and try again.",
     "signUpFailed": "We couldn't create that account. The email may already be registered.",
-    "demoHint": "Demo: demo@ecclesia.app / Ecclesia-Demo-2026"
+    "demoHint": "Demo: demo@ecclesia.app / Ecclesia-Demo-2026",
+    "verse": "Let all things be done decently and in order.",
+    "verseRef": "1 Corinthians 14:40"
   },
   "onboarding": {
     "title": "Set up your church",
@@ -79,7 +89,18 @@
       "easter": "Easter",
       "advent": "Advent",
       "christmas": "Christmas"
-    }
+    },
+    "heroLead": "Here is how {church} is doing.",
+    "quick": {
+      "title": "Quick actions",
+      "capture": "Capture headcount",
+      "captureLead": "Count today’s service",
+      "addPerson": "Add person",
+      "addPersonLead": "Register a visitor or member",
+      "teams": "See teams",
+      "teamsLead": "Positions and vacancies"
+    },
+    "perService": "per service"
   },
   "people": {
     "title": "People",
@@ -188,5 +209,18 @@
     "cancel": "Cancel",
     "saving": "Saving…",
     "optional": "optional"
+  },
+  "palette": {
+    "trigger": "Search people or jump to a page",
+    "label": "Command menu",
+    "placeholder": "Search people, pages and actions",
+    "searching": "Searching…",
+    "empty": "No matches. Try a different name or page.",
+    "people": "People",
+    "actions": "Actions",
+    "navigate": "Go to",
+    "hint": "Press Enter to open, Esc to close",
+    "captureHeadcount": "Capture a headcount",
+    "addPerson": "Add a person"
   }
 }

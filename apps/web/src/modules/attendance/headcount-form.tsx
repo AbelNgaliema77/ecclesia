@@ -3,7 +3,8 @@
 import { MAX_HEADCOUNT } from "@ecclesia/domain/attendance";
 import { Minus, Plus } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useActionMessages } from "@/components/forms/use-field-error";
 import { Button } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
@@ -26,83 +27,100 @@ export function HeadcountForm({ serviceId, categories, initial, disabled }: Head
   const [counts, setCounts] = useState<Record<string, number>>(() =>
     Object.fromEntries(categories.map((c) => [c.id, initial[c.id] ?? 0])),
   );
+  const [bump, setBump] = useState<Record<string, number>>({});
   const [state, action, pending] = useActionState(saveHeadcountAction, idleState);
   const { formError } = useActionMessages(state);
   const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
 
+  useEffect(() => {
+    if (state.status === "success") toast.success(t("saved"));
+  }, [state, t]);
+
   const change = (id: string, next: number) =>
     setCounts((current) => ({ ...current, [id]: clamp(next) }));
 
+  const step = (id: string, next: number) => {
+    change(id, next);
+    setBump((current) => ({ ...current, [id]: (current[id] ?? 0) + 1 }));
+    if ("vibrate" in navigator) navigator.vibrate(8);
+  };
+
   return (
-    <form action={action} className="flex flex-col gap-6">
+    <form action={action} className="flex flex-col gap-4">
       <input type="hidden" name="serviceId" value={serviceId} />
       {formError ? <FormAlert tone="error" message={formError} /> : null}
-      {state.status === "success" ? <FormAlert tone="success" message={t("saved")} /> : null}
 
-      <fieldset
-        disabled={disabled || pending}
-        className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface"
-      >
+      <fieldset disabled={disabled || pending} className="grid gap-3 sm:grid-cols-2">
         {categories.map((category) => {
           const value = counts[category.id] ?? 0;
           return (
-            <div key={category.id} className="flex items-center gap-4 px-4 py-4 sm:px-6">
+            <div key={category.id} className="card flex items-center gap-3 p-3 pl-4">
               <span
                 aria-hidden
-                className="size-3 shrink-0 rounded-sm"
+                className="h-10 w-1.5 shrink-0 rounded-full"
                 style={{ background: category.color }}
               />
-              <label htmlFor={`count-${category.id}`} className="flex-1 text-base font-medium">
+              <label htmlFor={`count-${category.id}`} className="min-w-0 flex-1 font-semibold">
                 {category.label}
               </label>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => change(category.id, value - 1)}
-                  disabled={value === 0}
-                  aria-label={t("decrease", { category: category.label })}
-                  className="inline-flex size-12 items-center justify-center rounded-full border border-line-strong text-ink-soft transition-colors hover:border-ink-faint hover:text-ink active:bg-paper disabled:opacity-40"
-                >
-                  <Minus aria-hidden className="size-5" />
-                </button>
-                <input
-                  id={`count-${category.id}`}
-                  name={`count:${category.id}`}
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={String(value)}
-                  onChange={(e) =>
-                    change(category.id, Number(e.target.value.replace(/\D/g, "") || 0))
-                  }
-                  onFocus={(e) => e.target.select()}
-                  className="h-12 w-20 rounded-control border border-line-strong bg-surface text-center font-display text-2xl font-medium focus:border-sanctuary-500 focus:outline-none focus:ring-2 focus:ring-sanctuary-100"
-                />
-                <button
-                  type="button"
-                  onClick={() => change(category.id, value + 1)}
-                  aria-label={t("increase", { category: category.label })}
-                  className="inline-flex size-12 items-center justify-center rounded-full bg-sanctuary-700 text-white transition-colors hover:bg-sanctuary-800 active:bg-sanctuary-900"
-                >
-                  <Plus aria-hidden className="size-5" />
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => step(category.id, value - 1)}
+                disabled={value === 0}
+                aria-label={t("decrease", { category: category.label })}
+                className="inline-flex size-12 items-center justify-center rounded-full bg-muted text-ink-soft transition-transform active:scale-90 disabled:opacity-40"
+              >
+                <Minus aria-hidden className="size-5" />
+              </button>
+              <input
+                key={bump[category.id] ?? 0}
+                id={`count-${category.id}`}
+                name={`count:${category.id}`}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={String(value)}
+                onChange={(e) =>
+                  change(category.id, Number(e.target.value.replace(/\D/g, "") || 0))
+                }
+                onFocus={(e) => e.target.select()}
+                className="count-pop h-12 w-16 rounded-control bg-transparent text-center font-display text-[1.75rem] font-bold focus:bg-muted focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => step(category.id, value + 1)}
+                aria-label={t("increase", { category: category.label })}
+                className="inline-flex size-12 items-center justify-center rounded-full bg-brand text-brand-ink shadow-[0_6px_16px_-6px_rgb(15_107_71/0.6)] transition-transform active:scale-90"
+              >
+                <Plus aria-hidden className="size-5" />
+              </button>
             </div>
           );
         })}
       </fieldset>
 
-      <div className="sticky bottom-0 -mx-4 flex items-center justify-between gap-4 border-t border-line bg-paper/95 px-4 py-4 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0">
-        <p className="flex items-baseline gap-2">
-          <span className="text-sm text-ink-soft">{t("total")}</span>
-          <span className="font-display text-3xl font-medium" aria-live="polite">
-            {format.number(total)}
-          </span>
-        </p>
-        {disabled ? null : (
-          <Button type="submit" size="lg" disabled={pending}>
-            {pending ? tc("saving") : t("save")}
-          </Button>
-        )}
+      <div className="sticky bottom-28 z-10 lg:bottom-4">
+        <div className="hero flex items-center justify-between gap-4 rounded-hero p-3 pl-6 shadow-pop">
+          <p className="flex items-baseline gap-2.5">
+            <span className="text-sm font-semibold text-hero-ink-soft">{t("total")}</span>
+            <span
+              key={total}
+              className="count-pop font-display text-4xl font-bold"
+              aria-live="polite"
+            >
+              {format.number(total)}
+            </span>
+          </p>
+          {disabled ? null : (
+            <Button
+              type="submit"
+              size="lg"
+              disabled={pending}
+              className="bg-white text-[#0a3d2b] shadow-none hover:bg-white/90"
+            >
+              {pending ? tc("saving") : t("save")}
+            </Button>
+          )}
+        </div>
       </div>
     </form>
   );

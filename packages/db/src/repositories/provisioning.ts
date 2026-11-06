@@ -24,11 +24,11 @@ const ROLE_NAMES: Record<DefaultRoleKey, LocalizedText> = {
 };
 
 const DEFAULT_CATEGORIES: { name: LocalizedText; color: string }[] = [
-  { name: { en: "Men", fr: "Hommes" }, color: "#2563eb" },
-  { name: { en: "Women", fr: "Femmes" }, color: "#db2777" },
-  { name: { en: "Youth", fr: "Jeunesse" }, color: "#f59e0b" },
-  { name: { en: "Sunday School", fr: "École du dimanche" }, color: "#10b981" },
-  { name: { en: "Visitors", fr: "Visiteurs" }, color: "#8b5cf6" },
+  { name: { en: "Men", fr: "Hommes" }, color: "#3987e5" },
+  { name: { en: "Women", fr: "Femmes" }, color: "#d95926" },
+  { name: { en: "Youth", fr: "Jeunesse" }, color: "#199e70" },
+  { name: { en: "Sunday School", fr: "École du dimanche" }, color: "#c98500" },
+  { name: { en: "Visitors", fr: "Visiteurs" }, color: "#d55181" },
 ];
 
 const DEFAULT_SERVICE_TYPES: { name: LocalizedText; dayOfWeek: number; startsAt: string }[] = [

@@ -1,11 +1,10 @@
 import { attendance } from "@ecclesia/db/repositories";
 import { can } from "@ecclesia/domain/access";
-import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { z } from "zod";
+import { BackLink } from "@/components/ui/back-link";
 import { PageHeader } from "@/components/ui/page-header";
 import { localized } from "@/i18n/config";
 import { HeadcountForm } from "@/modules/attendance/headcount-form";
@@ -36,14 +35,8 @@ export default async function ServiceHeadcountPage({
   const initial = Object.fromEntries(data.service.counts.map((c) => [c.categoryId, c.count]));
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
-      <Link
-        href="/attendance"
-        className="inline-flex items-center gap-1.5 text-sm text-ink-soft hover:text-ink"
-      >
-        <ArrowLeft aria-hidden className="size-4" />
-        {t("back")}
-      </Link>
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+      <BackLink href="/attendance" label={t("back")} />
       <PageHeader
         title={localized(data.service.serviceTypeName, locale)}
         lead={`${format.dateTime(data.service.occursAt, { dateStyle: "full", timeStyle: "short" })}. ${t("captureLead")}`}

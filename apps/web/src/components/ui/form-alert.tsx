@@ -7,8 +7,8 @@ export function FormAlert({ tone, message }: { tone: "error" | "success"; messag
     <p
       role={tone === "error" ? "alert" : "status"}
       className={cn(
-        "flex items-start gap-2 rounded-control px-3 py-2.5 text-sm",
-        tone === "error" ? "bg-danger-50 text-danger-600" : "bg-sanctuary-50 text-sanctuary-700",
+        "flex items-start gap-2.5 rounded-control px-4 py-3 text-sm font-medium",
+        tone === "error" ? "bg-danger-soft text-danger" : "bg-brand-soft text-brand-soft-ink",
       )}
     >
       <Icon aria-hidden className="mt-px size-4 shrink-0" />

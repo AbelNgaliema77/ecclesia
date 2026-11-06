@@ -18,7 +18,7 @@ export function LocaleSwitcher({ className }: { className?: string }) {
   return (
     <fieldset
       aria-label={t("language")}
-      className={cn("inline-flex rounded-full border border-line-strong p-0.5 text-xs", className)}
+      className={cn("inline-flex rounded-full bg-muted p-1 ring-1 ring-line ring-inset", className)}
       disabled={pending}
     >
       {LOCALES.map((option) => (
@@ -35,8 +35,8 @@ export function LocaleSwitcher({ className }: { className?: string }) {
             })
           }
           className={cn(
-            "rounded-full px-2.5 py-1 font-medium uppercase transition-colors",
-            option === locale ? "bg-ink text-white" : "text-ink-soft hover:text-ink",
+            "h-7 rounded-full px-3 text-xs font-bold uppercase transition-colors",
+            option === locale ? "bg-surface text-ink shadow-card" : "text-ink-faint hover:text-ink",
           )}
         >
           {option}

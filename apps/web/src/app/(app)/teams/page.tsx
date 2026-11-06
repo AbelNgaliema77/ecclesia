@@ -1,8 +1,9 @@
 import { teams } from "@ecclesia/db/repositories";
+import { Crown, Workflow } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
-import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { localized } from "@/i18n/config";
 import { readChurch } from "@/server/queries";
@@ -17,60 +18,56 @@ export default async function TeamsPage() {
   ]);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <PageHeader title={t("title")} lead={t("lead")} />
       {overview.length === 0 ? (
-        <p className="rounded-panel border border-dashed border-line-strong p-10 text-ink-soft">
-          {t("empty")}
-        </p>
+        <EmptyState icon={Workflow} message={t("empty")} />
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {overview.map((team) => {
             const people = new Set(team.positions.flatMap((p) => p.holders.map((h) => h.personId)));
+            const color = team.color ?? "#1f9d68";
             return (
-              <section
-                key={team.id}
-                className="flex flex-col rounded-panel border border-line bg-surface"
-              >
-                <header className="flex items-start gap-3 border-b border-line p-5">
+              <section key={team.id} className="card flex flex-col overflow-hidden">
+                <header className="flex items-center gap-4 p-5">
                   <span
                     aria-hidden
-                    className="mt-1.5 size-2.5 shrink-0 rounded-full"
-                    style={{ background: team.color ?? "#2b7a6e" }}
-                  />
-                  <div className="flex-1">
-                    <h2 className="font-display text-lg font-medium">
-                      {localized(team.name, locale)}
-                    </h2>
+                    className="inline-flex size-12 shrink-0 items-center justify-center rounded-control"
+                    style={{ background: `color-mix(in oklab, ${color} 16%, transparent)`, color }}
+                  >
+                    <Workflow className="size-5" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-xl font-bold">{localized(team.name, locale)}</h2>
                     <p className="mt-0.5 text-sm text-ink-faint">
                       {t("positions", { count: team.positions.length })},{" "}
                       {t("people", { count: people.size })}
                     </p>
                   </div>
                 </header>
-                <ul className="divide-y divide-line">
+                <ul className="flex flex-col gap-2 px-3 pb-3">
                   {team.positions.map((position) => (
-                    <li
-                      key={position.id}
-                      className="grid gap-2 px-5 py-3.5 sm:grid-cols-[11rem_minmax(0,1fr)]"
-                    >
-                      <div className="flex flex-col items-start gap-1">
-                        <span className="text-sm font-medium">
+                    <li key={position.id} className="rounded-control bg-muted px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold">
                           {localized(position.name, locale)}
                         </span>
                         {position.isLeadership ? (
-                          <Badge tone="sanctuary">{t("lead_badge")}</Badge>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-gold-soft px-2 py-0.5 text-[0.6875rem] font-semibold text-gold-ink">
+                            <Crown aria-hidden className="size-3" />
+                            {t("lead_badge")}
+                          </span>
                         ) : null}
                       </div>
-                      <p className="text-sm leading-relaxed text-ink-soft">
+                      <p className="mt-1 text-sm leading-relaxed text-ink-soft">
                         {position.holders.length === 0 ? (
-                          <span className="text-candle-700">{t("vacant")}</span>
+                          <span className="font-semibold text-gold-ink">{t("vacant")}</span>
                         ) : (
                           position.holders.map((holder, index) => (
                             <span key={holder.personId}>
                               <Link
                                 href={`/people/${holder.personId}`}
-                                className="hover:text-ink hover:underline"
+                                className="hover:text-accent hover:underline"
                               >
                                 {holder.firstName} {holder.lastName}
                               </Link>

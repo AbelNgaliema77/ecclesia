@@ -10,7 +10,7 @@ export default async function OnboardingPage() {
   const t = await getTranslations("onboarding");
   return (
     <>
-      <h1 className="font-display text-display font-medium tracking-tight">{t("title")}</h1>
+      <h1 className="text-display font-bold">{t("title")}</h1>
       <p className="mt-2 leading-relaxed text-ink-soft">{t("lead")}</p>
       <OnboardingForm />
     </>

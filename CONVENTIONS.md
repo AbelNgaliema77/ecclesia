@@ -45,7 +45,9 @@ Modules do not import each other's internals. Shared needs move down into domain
 - Sentence case for all text. No all-caps labels.
 - Buttons say what they do: "Save person", "Open headcount", not "Submit".
 - Errors say what happened and how to fix it. Empty states say what to do next.
-- Use the design tokens in globals.css. Do not introduce new colours or fonts without updating them there.
+- Use the design tokens in globals.css. Do not introduce new colours or fonts without updating them there, in both light and dark.
+- Successful saves confirm with a toast. Errors stay inline next to the form.
+- Every screen must work at 390px with the bottom tab bar, and in dark mode.
 - Dates and numbers go through next-intl formatters, never toString or manual formatting.
 - En dashes (–) in copy, not em dashes.
 

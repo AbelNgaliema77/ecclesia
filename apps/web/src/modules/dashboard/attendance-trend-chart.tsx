@@ -34,7 +34,6 @@ export function AttendanceTrendChart({ trend, categories }: ChartProps) {
     month: point.month,
     season: point.season,
     total: point.averagePerService,
-    services: point.services,
     ...point.byCategory,
   }));
 
@@ -57,25 +56,27 @@ export function AttendanceTrendChart({ trend, categories }: ChartProps) {
     const point = data.find((d) => d.month === label);
     if (!point) return null;
     return (
-      <div className="min-w-48 rounded-panel border border-line bg-surface p-3 text-sm shadow-lg shadow-ink/5">
-        <p className="font-medium text-ink">
+      <div className="min-w-52 rounded-card border border-line bg-surface p-4 text-sm shadow-pop">
+        <p className="font-semibold text-ink">
           {format.dateTime(toDate(label), { month: "long", year: "numeric", timeZone: "UTC" })}
-          {point.season ? (
-            <span className="ml-2 font-normal text-candle-700">{t(`seasons.${point.season}`)}</span>
-          ) : null}
         </p>
-        <ul className="mt-2 flex flex-col gap-1">
+        {point.season ? (
+          <p className="mt-0.5 text-xs font-semibold text-gold-ink">
+            {t(`seasons.${point.season}`)}
+          </p>
+        ) : null}
+        <ul className="mt-3 flex flex-col gap-1.5">
           {[...categories].reverse().map((c) => (
             <li key={c.id} className="flex items-center gap-2 text-ink-soft">
-              <span aria-hidden className="size-2.5 rounded-sm" style={{ background: c.color }} />
+              <span aria-hidden className="size-2.5 rounded-full" style={{ background: c.color }} />
               <span className="flex-1">{localized(c.name, locale)}</span>
-              <span className="text-ink">
+              <span className="font-semibold text-ink">
                 {format.number(Number(point[c.id as keyof typeof point] ?? 0))}
               </span>
             </li>
           ))}
         </ul>
-        <p className="mt-2 flex justify-between border-t border-line pt-2 font-medium text-ink">
+        <p className="mt-3 flex justify-between border-t border-line pt-2.5 font-semibold text-ink">
           <span>{t("averageAttendance")}</span>
           <span>{format.number(point.total)}</span>
         </p>
@@ -84,29 +85,31 @@ export function AttendanceTrendChart({ trend, categories }: ChartProps) {
   };
 
   return (
-    <figure className="flex flex-col gap-4">
+    <figure className="flex flex-col gap-5">
       <div className="h-72 w-full sm:h-80">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
-            margin={{ top: 24, right: 4, bottom: 0, left: -12 }}
-            barCategoryGap="22%"
+            margin={{ top: 28, right: 0, bottom: 0, left: -16 }}
+            barCategoryGap="26%"
           >
-            <CartesianGrid vertical={false} stroke="#e2e4e0" />
+            <CartesianGrid vertical={false} stroke="var(--chart-grid)" strokeDasharray="4 6" />
             {seasonBands.map((band) => (
               <ReferenceArea
                 key={`${band.season}-${band.from}`}
                 x1={band.from}
                 x2={band.to}
-                fill="#f6ecd6"
-                fillOpacity={0.55}
+                fill="var(--gold-soft)"
+                fillOpacity={0.7}
                 ifOverflow="extendDomain"
+                radius={10}
                 label={{
                   value: t(`seasons.${band.season}`),
                   position: "insideTop",
-                  offset: -18,
-                  fill: "#7d5a17",
+                  offset: -20,
+                  fill: "var(--gold-ink)",
                   fontSize: 12,
+                  fontWeight: 600,
                 }}
               />
             ))}
@@ -114,38 +117,44 @@ export function AttendanceTrendChart({ trend, categories }: ChartProps) {
               dataKey="month"
               tickFormatter={monthLabel}
               tickLine={false}
-              axisLine={{ stroke: "#c9ccc6" }}
-              tick={{ fill: "#767c85", fontSize: 12 }}
-              interval={0}
+              axisLine={false}
+              tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
+              interval="equidistantPreserveStart"
+              minTickGap={8}
+              dy={6}
             />
             <YAxis
               tickLine={false}
               axisLine={false}
-              tick={{ fill: "#767c85", fontSize: 12 }}
+              tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
               width={48}
               allowDecimals={false}
             />
-            <Tooltip content={renderTooltip} cursor={{ fill: "#eef6f4", opacity: 0.7 }} />
+            <Tooltip content={renderTooltip} cursor={{ fill: "var(--muted)", radius: 10 }} />
             {categories.map((c, index) => (
               <Bar
                 key={c.id}
                 dataKey={c.id}
                 stackId="attendance"
                 fill={c.color}
-                stroke="#ffffff"
+                stroke="var(--chart-gap)"
                 strokeWidth={2}
-                radius={index === categories.length - 1 ? [4, 4, 0, 0] : 0}
-                isAnimationActive={false}
+                radius={index === categories.length - 1 ? [8, 8, 0, 0] : 0}
+                animationDuration={700}
+                animationBegin={index * 60}
               />
             ))}
           </BarChart>
         </ResponsiveContainer>
       </div>
       <figcaption>
-        <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-soft">
+        <ul className="flex flex-wrap gap-2">
           {categories.map((c) => (
-            <li key={c.id} className="flex items-center gap-2">
-              <span aria-hidden className="size-2.5 rounded-sm" style={{ background: c.color }} />
+            <li
+              key={c.id}
+              className="inline-flex h-8 items-center gap-2 rounded-full bg-muted px-3 text-sm font-medium text-ink-soft"
+            >
+              <span aria-hidden className="size-2.5 rounded-full" style={{ background: c.color }} />
               {localized(c.name, locale)}
             </li>
           ))}

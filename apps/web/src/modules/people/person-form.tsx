@@ -9,6 +9,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useActionState, useEffect } from "react";
+import { toast } from "sonner";
 import { useActionMessages } from "@/components/forms/use-field-error";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -45,9 +46,9 @@ const EMPTY: PersonFormValues = {
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <fieldset className="grid gap-x-8 gap-y-5 border-t border-line pt-6 md:grid-cols-[12rem_minmax(0,1fr)]">
+    <fieldset className="card grid gap-x-8 gap-y-5 p-5 sm:p-6 md:grid-cols-[11rem_minmax(0,1fr)]">
       <legend className="sr-only">{title}</legend>
-      <p aria-hidden className="font-display text-lg font-medium">
+      <p aria-hidden className="font-display text-lg font-bold">
         {title}
       </p>
       <div className="grid gap-5 sm:grid-cols-2">{children}</div>
@@ -73,8 +74,10 @@ export function PersonForm({
   const { fieldError, formError, invalid } = useActionMessages(state);
 
   useEffect(() => {
-    if (state.status === "success" && !isEdit) router.push(`/people/${state.data.id}`);
-  }, [state, isEdit, router]);
+    if (state.status !== "success") return;
+    toast.success(t("saved"));
+    if (!isEdit) router.push(`/people/${state.data.id}`);
+  }, [state, isEdit, router, t]);
 
   const statuses = isEdit
     ? PERSON_STATUSES.filter((s) => canTransition(initial.status, s))
@@ -92,14 +95,11 @@ export function PersonForm({
   );
 
   return (
-    <form action={action} className="flex flex-col gap-8">
+    <form action={action} className="flex flex-col gap-4">
       {initial.id ? <input type="hidden" name="id" value={initial.id} /> : null}
       {formError ? <FormAlert tone="error" message={formError} /> : null}
-      {state.status === "success" && isEdit ? (
-        <FormAlert tone="success" message={t("saved")} />
-      ) : null}
 
-      <fieldset disabled={disabled || pending} className="flex flex-col gap-8">
+      <fieldset disabled={disabled || pending} className="flex flex-col gap-4">
         <Section title={t("sections.identity")}>
           {field(
             "firstName",
@@ -227,8 +227,8 @@ export function PersonForm({
       </fieldset>
 
       {disabled ? null : (
-        <div className="flex justify-end border-t border-line pt-6">
-          <Button type="submit" size="lg" disabled={pending}>
+        <div className="sticky bottom-28 z-10 flex justify-end lg:bottom-4">
+          <Button type="submit" size="lg" disabled={pending} className="shadow-pop">
             {pending ? tc("saving") : t("save")}
           </Button>
         </div>

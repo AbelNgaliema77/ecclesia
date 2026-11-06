@@ -11,7 +11,7 @@ export default async function SignInPage() {
   const t = await getTranslations("auth");
   return (
     <>
-      <h1 className="font-display text-display font-medium tracking-tight">{t("signInTitle")}</h1>
+      <h1 className="text-display font-bold">{t("signInTitle")}</h1>
       <p className="mt-2 text-ink-soft">{t("signInLead")}</p>
       <Suspense>
         <SignInForm />
@@ -20,13 +20,13 @@ export default async function SignInPage() {
         {t("noAccount")}{" "}
         <Link
           href="/sign-up"
-          className="font-medium text-sanctuary-700 underline-offset-4 hover:underline"
+          className="font-semibold text-accent underline-offset-4 hover:underline"
         >
           {t("createOne")}
         </Link>
       </p>
       {env.ECCLESIA_SHOW_DEMO_LOGIN ? (
-        <p className="mt-6 rounded-control bg-candle-100 px-3 py-2 text-sm text-candle-700">
+        <p className="mt-6 rounded-control bg-gold-soft px-4 py-3 text-sm font-medium text-gold-ink">
           {t("demoHint")}
         </p>
       ) : null}

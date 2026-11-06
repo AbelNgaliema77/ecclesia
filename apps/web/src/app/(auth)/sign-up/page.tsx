@@ -9,14 +9,14 @@ export default async function SignUpPage() {
   const t = await getTranslations("auth");
   return (
     <>
-      <h1 className="font-display text-display font-medium tracking-tight">{t("signUpTitle")}</h1>
+      <h1 className="text-display font-bold">{t("signUpTitle")}</h1>
       <p className="mt-2 text-ink-soft">{t("signUpLead")}</p>
       <SignUpForm />
       <p className="mt-8 text-sm text-ink-soft">
         {t("haveAccount")}{" "}
         <Link
           href="/sign-in"
-          className="font-medium text-sanctuary-700 underline-offset-4 hover:underline"
+          className="font-semibold text-accent underline-offset-4 hover:underline"
         >
           {t("signInInstead")}
         </Link>
