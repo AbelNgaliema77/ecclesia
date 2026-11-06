@@ -13,11 +13,15 @@
 - [x] Subscription access states
 - [x] Demo church seed
 
+- [x] Redesign with dark mode, command menu and phone navigation
+- [x] Invite members by link, change roles, remove members
+- [x] Custom roles with a permission matrix
+- [x] Church settings: details, service times, attendance categories
+- [x] Create and edit teams, positions and assignments
+
 ## Phase 1 – remaining
 
-- [ ] Create and edit teams, positions and assignments in the UI
-- [ ] Church settings: categories, service types, roles, branding
-- [ ] Invite users and assign roles
+- [ ] Church branding: logo and colours
 - [ ] Households
 - [ ] Excel import for people
 - [ ] Offline attendance capture (service worker and sync queue)

@@ -3,6 +3,7 @@ import {
   CalendarCheck2,
   LayoutGrid,
   type LucideIcon,
+  Settings2,
   UsersRound,
   Wallet,
   Workflow,
@@ -16,4 +17,5 @@ export const NAV_ICONS: Record<NavKey, LucideIcon> = {
   attendance: CalendarCheck2,
   finance: Wallet,
   inventory: Boxes,
+  settings: Settings2,
 };

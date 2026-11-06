@@ -17,6 +17,7 @@ import {
   time,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
@@ -319,6 +320,39 @@ export const memberships = pgTable(
   ],
 );
 
+export const invitations = pgTable(
+  "invitations",
+  {
+    id: id(),
+    churchId: churchId(),
+    email: text().notNull(),
+    roleId: uuid().notNull(),
+    personId: uuid(),
+    tokenHash: text().notNull().unique(),
+    invitedBy: text().references(() => user.id, { onDelete: "set null" }),
+    expiresAt: timestamp({ withTimezone: true }).notNull(),
+    acceptedAt: timestamp({ withTimezone: true }),
+    acceptedBy: text().references(() => user.id, { onDelete: "set null" }),
+    revokedAt: timestamp({ withTimezone: true }),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index().on(t.churchId, t.createdAt),
+    uniqueIndex("invitations_one_open_per_email")
+      .on(t.churchId, t.email)
+      .where(sql`${t.acceptedAt} IS NULL AND ${t.revokedAt} IS NULL`),
+    foreignKey({
+      columns: [t.churchId, t.roleId],
+      foreignColumns: [roles.churchId, roles.id],
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [t.churchId, t.personId],
+      foreignColumns: [people.churchId, people.id],
+    }).onDelete("no action"),
+    check("invitations_email_lowercase", sql`${t.email} = lower(${t.email})`),
+  ],
+);
+
 export const CHURCH_SCOPED_TABLES = [
   "roles",
   "campuses",
@@ -333,4 +367,5 @@ export const CHURCH_SCOPED_TABLES = [
   "services",
   "headcounts",
   "audit_log",
+  "invitations",
 ] as const;

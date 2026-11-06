@@ -7,6 +7,7 @@ export const NAV_ICON_KEYS = [
   "attendance",
   "finance",
   "inventory",
+  "settings",
 ] as const;
 
 export type NavKey = (typeof NAV_ICON_KEYS)[number];

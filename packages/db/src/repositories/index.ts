@@ -1,7 +1,11 @@
 export * as access from "./access";
 export * as attendance from "./attendance";
 export * as audit from "./audit";
+export * as invitations from "./invitations";
+export * as members from "./members";
 export * as people from "./people";
 export * as platform from "./platform";
 export * as provisioning from "./provisioning";
+export * as roles from "./roles";
+export * as settings from "./settings";
 export * as teams from "./teams";

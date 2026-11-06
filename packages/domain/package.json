@@ -10,7 +10,9 @@
     "./attendance": "./src/attendance/index.ts",
     "./billing": "./src/billing/index.ts",
     "./calendar": "./src/calendar/index.ts",
-    "./shared": "./src/shared/index.ts"
+    "./shared": "./src/shared/index.ts",
+    "./members": "./src/members/index.ts",
+    "./settings": "./src/settings/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

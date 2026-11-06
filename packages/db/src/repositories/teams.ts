@@ -110,19 +110,6 @@ export const insertAssignment = async (tx: Tx, input: AssignmentPeriod) => {
   return row;
 };
 
-export const endAssignment = async (tx: Tx, personId: string, positionId: string, endsOn: Date) =>
-  tx
-    .update(assignments)
-    .set({ endsOn })
-    .where(
-      and(
-        eq(assignments.personId, personId),
-        eq(assignments.positionId, positionId),
-        isNull(assignments.endsOn),
-      ),
-    )
-    .returning();
-
 export const countPeopleServing = async (tx: Tx): Promise<number> => {
   const [row] = await tx
     .select({ total: sql<number>`count(distinct ${assignments.personId})::int` })
@@ -135,4 +122,147 @@ export const countPeopleServing = async (tx: Tx): Promise<number> => {
       ),
     );
   return row?.total ?? 0;
+};
+
+export const getTeam = async (tx: Tx, id: string) => {
+  const [row] = await tx.select().from(teams).where(eq(teams.id, id));
+  return row ?? null;
+};
+
+export type TeamDetail = Omit<TeamOverview, "positions"> & {
+  readonly positions: readonly (TeamOverview["positions"][number] & {
+    readonly assignments: readonly {
+      readonly assignmentId: string;
+      readonly personId: string;
+      readonly firstName: string;
+      readonly lastName: string;
+      readonly startsOn: Date;
+    }[];
+    readonly historyCount: number;
+  })[];
+};
+
+export const getTeamDetail = async (tx: Tx, id: string): Promise<TeamDetail | null> => {
+  const team = await getTeam(tx, id);
+  if (!team) return null;
+  const [positionRows, assignmentRows] = await Promise.all([
+    tx
+      .select()
+      .from(positions)
+      .where(eq(positions.teamId, id))
+      .orderBy(sql`${positions.isLeadership} desc`, sql`${positions.name}->>'en'`),
+    tx
+      .select({
+        assignmentId: assignments.id,
+        positionId: assignments.positionId,
+        personId: people.id,
+        firstName: people.firstName,
+        lastName: people.lastName,
+        startsOn: assignments.startsOn,
+        endsOn: assignments.endsOn,
+      })
+      .from(assignments)
+      .innerJoin(positions, eq(positions.id, assignments.positionId))
+      .innerJoin(people, eq(people.id, assignments.personId))
+      .where(and(eq(positions.teamId, id), isNull(people.deletedAt)))
+      .orderBy(asc(people.lastName)),
+  ]);
+
+  const now = new Date();
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  return {
+    id: team.id,
+    name: team.name,
+    description: team.description,
+    color: team.color,
+    positions: positionRows.map((p) => {
+      const forPosition = assignmentRows.filter((a) => a.positionId === p.id);
+      const active = forPosition.filter((a) => a.endsOn === null || a.endsOn.getTime() >= today);
+      return {
+        id: p.id,
+        name: p.name,
+        isLeadership: p.isLeadership,
+        maxHolders: p.maxHolders,
+        holders: active.map(({ personId, firstName, lastName }) => ({
+          personId,
+          firstName,
+          lastName,
+        })),
+        assignments: active.map(({ assignmentId, personId, firstName, lastName, startsOn }) => ({
+          assignmentId,
+          personId,
+          firstName,
+          lastName,
+          startsOn,
+        })),
+        historyCount: forPosition.length,
+      };
+    }),
+  };
+};
+
+type TeamValues = { name: LocalizedText; description: string | null; color: string | null };
+
+export const updateTeam = async (tx: Tx, id: string, input: TeamValues) => {
+  const [row] = await tx.update(teams).set(input).where(eq(teams.id, id)).returning();
+  return row ?? null;
+};
+
+export const countTeamAssignments = async (tx: Tx, teamId: string): Promise<number> => {
+  const [row] = await tx
+    .select({ total: sql<number>`count(*)::int` })
+    .from(assignments)
+    .innerJoin(positions, eq(positions.id, assignments.positionId))
+    .where(eq(positions.teamId, teamId));
+  return row?.total ?? 0;
+};
+
+export const deleteTeam = async (tx: Tx, id: string) => {
+  const [row] = await tx.delete(teams).where(eq(teams.id, id)).returning();
+  return row ?? null;
+};
+
+type PositionValues = { name: LocalizedText; isLeadership: boolean; maxHolders: number | null };
+
+export const updatePosition = async (tx: Tx, id: string, input: PositionValues) => {
+  const [row] = await tx.update(positions).set(input).where(eq(positions.id, id)).returning();
+  return row ?? null;
+};
+
+export const countPositionAssignments = async (tx: Tx, positionId: string): Promise<number> => {
+  const [row] = await tx
+    .select({ total: sql<number>`count(*)::int` })
+    .from(assignments)
+    .where(eq(assignments.positionId, positionId));
+  return row?.total ?? 0;
+};
+
+export const deletePosition = async (tx: Tx, id: string) => {
+  const [row] = await tx.delete(positions).where(eq(positions.id, id)).returning();
+  return row ?? null;
+};
+
+export const getAssignmentWithTeam = async (tx: Tx, id: string) => {
+  const [row] = await tx
+    .select({
+      id: assignments.id,
+      personId: assignments.personId,
+      positionId: assignments.positionId,
+      startsOn: assignments.startsOn,
+      endsOn: assignments.endsOn,
+      teamId: positions.teamId,
+    })
+    .from(assignments)
+    .innerJoin(positions, eq(positions.id, assignments.positionId))
+    .where(eq(assignments.id, id));
+  return row ?? null;
+};
+
+export const setAssignmentEnd = async (tx: Tx, id: string, endsOn: Date) => {
+  const [row] = await tx
+    .update(assignments)
+    .set({ endsOn })
+    .where(eq(assignments.id, id))
+    .returning();
+  return row ?? null;
 };

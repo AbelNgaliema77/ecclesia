@@ -1,16 +1,20 @@
-import type { Metadata } from "next";
+import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
+import { safeNext } from "@/lib/safe-next";
 import { getSession } from "@/server/context";
 import { env } from "@/server/env";
 import { SignInForm } from "./sign-in-form";
 
 export const metadata: Metadata = { title: "Sign in" };
 
-export default async function SignInPage() {
-  if (await getSession()) redirect("/");
+type PageProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
+
+export default async function SignInPage({ searchParams }: PageProps) {
+  const next = safeNext((await searchParams).next);
+  if (await getSession()) redirect(next as Route);
   const t = await getTranslations("auth");
   return (
     <>
@@ -22,7 +26,7 @@ export default async function SignInPage() {
       <p className="mt-8 text-sm text-ink-soft">
         {t("noAccount")}{" "}
         <Link
-          href="/sign-up"
+          href={(next === "/" ? "/sign-up" : `/sign-up?next=${encodeURIComponent(next)}`) as Route}
           className="font-semibold text-accent underline-offset-4 hover:underline"
         >
           {t("createOne")}

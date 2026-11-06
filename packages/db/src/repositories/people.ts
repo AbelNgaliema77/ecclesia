@@ -173,3 +173,15 @@ export const statusHistory = async (tx: Tx, personId: string) =>
     .from(personStatusHistory)
     .where(eq(personStatusHistory.personId, personId))
     .orderBy(desc(personStatusHistory.changedAt));
+
+export const listPeopleOptions = async (tx: Tx) =>
+  tx
+    .select({
+      id: people.id,
+      firstName: people.firstName,
+      lastName: people.lastName,
+      status: people.status,
+    })
+    .from(people)
+    .where(and(isNull(people.deletedAt), sql`${people.status} <> 'inactive'`))
+    .orderBy(asc(people.lastName), asc(people.firstName));

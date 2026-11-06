@@ -7,7 +7,9 @@ Church management for people, teams, attendance and stewardship. Multi-church, E
 - Sign up, sign in, and church onboarding with default roles, attendance categories and service times
 - Role-based access with church, team and self scopes, enforced on every page and action
 - People directory with search, status filters, growth-path status rules and status history
-- Teams and positions with current holders and vacancies
+- Teams, positions and assignments, managed in the app, with team leaders managing their own teams
+- Members and invitations by private link, custom roles with a permission matrix
+- Church settings for details, service times and attendance categories
 - Attendance capture per service and category, built for phones, with corrections logged
 - Dashboard with average attendance, first-time visitors, people serving, and a monthly trend split by category with church seasons marked
 - Subscription states (trial, active, past due, read-only, locked) enforced across the app

@@ -44,6 +44,9 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       : []),
     { key: "finance", href: null, label: t("finance"), badge: t("soon") },
     { key: "inventory", href: null, label: t("inventory"), badge: t("soon") },
+    ...(can(actor, "settings.manage") || can(actor, "users.manage")
+      ? [{ key: "settings", href: "/settings", label: t("settings") } as const]
+      : []),
   ];
 
   const trialEndsAt =

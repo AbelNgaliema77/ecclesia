@@ -61,3 +61,11 @@ export const listMembershipsForUser = async (
 export const setUserLocale = async (db: Database, userId: string, locale: "en" | "fr") => {
   await db.update(user).set({ locale }).where(eq(user.id, userId));
 };
+
+export const getChurchSummary = async (db: Database, churchId: string) => {
+  const [row] = await db
+    .select({ id: churches.id, name: churches.name })
+    .from(churches)
+    .where(eq(churches.id, churchId));
+  return row ?? null;
+};

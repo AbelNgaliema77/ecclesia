@@ -7,9 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import { authClient } from "@/lib/auth-client";
-
-const safeNext = (value: string | null): string =>
-  value?.startsWith("/") && !value.startsWith("//") ? value : "/";
+import { safeNext } from "@/lib/safe-next";
 
 export function SignInForm() {
   const t = useTranslations("auth");
@@ -32,7 +30,7 @@ export function SignInForm() {
       setError(signInError.status === 401 ? t("invalidCredentials") : t("signInUnavailable"));
       return;
     }
-    router.replace(safeNext(params.get("next")) as "/");
+    router.replace(safeNext(params.get("next") ?? undefined) as "/");
     router.refresh();
   };
 

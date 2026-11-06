@@ -8,7 +8,7 @@ import { Field, Input } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import { authClient } from "@/lib/auth-client";
 
-export function SignUpForm() {
+export function SignUpForm({ next, email }: { next: string | null; email: string }) {
   const t = useTranslations("auth");
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +29,7 @@ export function SignUpForm() {
       setError(t("signUpFailed"));
       return;
     }
-    router.replace("/onboarding");
+    router.replace((next ?? "/onboarding") as "/onboarding");
     router.refresh();
   };
 
@@ -40,7 +40,14 @@ export function SignUpForm() {
         <Input id="name" name="name" autoComplete="name" required maxLength={120} autoFocus />
       </Field>
       <Field id="email" label={t("email")}>
-        <Input id="email" name="email" type="email" autoComplete="email" required />
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          defaultValue={email}
+        />
       </Field>
       <Field id="password" label={t("password")} hint={t("passwordHint")}>
         <Input

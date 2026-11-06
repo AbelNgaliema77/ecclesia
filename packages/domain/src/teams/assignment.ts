@@ -58,3 +58,15 @@ export const validateAssignment = (
 
   return ok(candidate);
 };
+
+export const endAssignmentOn = (
+  assignment: { readonly startsOn: Date; readonly endsOn: Date | null },
+  endsOn: Date,
+): Result<Date> => {
+  if (assignment.endsOn !== null)
+    return err(domainError("assignment.alreadyEnded", "Already ended"));
+  if (endsOn.getTime() < assignment.startsOn.getTime()) {
+    return err(domainError("assignment.endBeforeStart", "End date is before start date"));
+  }
+  return ok(endsOn);
+};

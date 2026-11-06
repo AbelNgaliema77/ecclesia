@@ -70,6 +70,32 @@ export const runChurchAction = async <T>(
   }
 };
 
+type FormTree = { [key: string]: string | FormTree };
+
+export const formToNested = (formData: FormData): FormTree => {
+  const root: FormTree = {};
+  for (const [key, value] of formData.entries()) {
+    if (typeof value !== "string" || key.startsWith("$ACTION")) continue;
+    const path = key.split(".");
+    let node = root;
+    for (const [index, part] of path.entries()) {
+      if (index === path.length - 1) {
+        node[part] = value;
+      } else {
+        const next = node[part];
+        if (typeof next === "object") {
+          node = next;
+        } else {
+          const created: FormTree = {};
+          node[part] = created;
+          node = created;
+        }
+      }
+    }
+  }
+  return root;
+};
+
 export const formToObject = (formData: FormData): Record<string, string> => {
   const result: Record<string, string> = {};
   for (const [key, value] of formData.entries()) {
