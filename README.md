@@ -35,7 +35,7 @@ Inventory, online giving and the platform admin area follow in the next phases. 
 | i18n        | next-intl, cookie-based, no locale in URLs        |
 | UI          | Tailwind CSS 4, Recharts, Lucide icons            |
 | Quality     | Biome, Vitest, Playwright, GitHub Actions         |
-| Hosting     | One Docker image, any VPS (Coolify recommended)   |
+| Hosting     | Docker Compose on any VPS, Caddy for HTTPS        |
 
 ## Getting started
 
