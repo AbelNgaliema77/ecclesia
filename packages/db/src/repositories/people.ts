@@ -317,3 +317,29 @@ export const insertPeople = async (
   );
   return rows.map(({ id }) => ({ id }));
 };
+
+export const existingIds = async (tx: Tx, ids: readonly string[]): Promise<Set<string>> => {
+  if (ids.length === 0) return new Set();
+  const rows = await tx
+    .select({ id: people.id })
+    .from(people)
+    .where(and(inArray(people.id, [...ids]), isNull(people.deletedAt)));
+  return new Set(rows.map((r) => r.id));
+};
+
+export const displayNames = async (
+  tx: Tx,
+  ids: readonly string[],
+): Promise<Map<string, string>> => {
+  if (ids.length === 0) return new Map();
+  const rows = await tx
+    .select({
+      id: people.id,
+      firstName: people.firstName,
+      lastName: people.lastName,
+      preferredName: people.preferredName,
+    })
+    .from(people)
+    .where(inArray(people.id, [...ids]));
+  return new Map(rows.map((r) => [r.id, `${r.preferredName ?? r.firstName} ${r.lastName}`]));
+};

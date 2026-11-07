@@ -1,7 +1,11 @@
 export * as access from "./access";
 export * as attendance from "./attendance";
 export * as audit from "./audit";
+export * as expenses from "./expenses";
+export * as finance from "./finance";
+export * as giving from "./giving";
 export * as invitations from "./invitations";
+export * as ledger from "./ledger";
 export * as members from "./members";
 export * as people from "./people";
 export * as platform from "./platform";

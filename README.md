@@ -15,11 +15,13 @@ Church management for people, teams, attendance and stewardship. Multi-church, E
 - Attendance capture per service and category, built for phones, kept on the phone when signal drops and synced when it returns
 - Dashboard with average attendance, first-time visitors, people serving, and a monthly trend split by category with church seasons marked
 - Subscription states (trial, active, past due, read-only, locked) enforced across the app
+- Finance: funds, giving with void-only corrections, two-person cash counts, bank statement import with giving-number matching, donors and Section 18A certificates, payment requests with photo and PDF receipts, approval limits and separation of duties, budgets, income and expense statements, CSV export and month-end close
+- Two-step verification (authenticator app and backup codes), required for finance access by default
 - Audit log for every change, append-only at the database level
 - English and French throughout, per user
 - Demo church with 18 months of realistic data
 
-Finance, inventory, online giving and the platform admin area follow in the next phases. See docs/roadmap.md.
+Inventory, online giving and the platform admin area follow in the next phases. See docs/roadmap.md.
 
 ## Stack
 
@@ -48,7 +50,16 @@ pnpm db:seed
 pnpm dev
 ```
 
-Open http://localhost:3100 and sign in with demo@ecclesia.app (Church Admin) or leader@ecclesia.app (Team Leader), both with the password Ecclesia-Demo-2026. Set ECCLESIA_SHOW_DEMO_LOGIN=true in .env to show these details on the sign-in page.
+Open http://localhost:3100 and sign in with any demo account, all with the password Ecclesia-Demo-2026:
+
+| Account                | Role                                                 |
+| ---------------------- | ---------------------------------------------------- |
+| demo@ecclesia.app      | Church Admin                                         |
+| pastor@ecclesia.app    | Pastor                                               |
+| treasurer@ecclesia.app | Team Leader who leads Finance, so has finance access |
+| leader@ecclesia.app    | Team Leader of Media, can request payments           |
+
+The demo church has two-step verification switched off for finance so the accounts open straight away. Set ECCLESIA_SHOW_DEMO_LOGIN=true in .env to show these details on the sign-in page.
 
 Until an email provider is configured, emails are saved locally instead of sent. Open http://localhost:3100/dev/outbox to read invitations and password reset emails.
 

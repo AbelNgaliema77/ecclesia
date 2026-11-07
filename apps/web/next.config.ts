@@ -23,6 +23,9 @@ const config: NextConfig = {
   serverExternalPackages: ["postgres"],
   poweredByHeader: false,
   agentRules: false,
+  experimental: {
+    serverActions: { bodySizeLimit: "6mb" },
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

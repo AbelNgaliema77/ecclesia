@@ -1,7 +1,7 @@
 import "server-only";
 import { withChurch } from "@ecclesia/db";
-import { access, platform } from "@ecclesia/db/repositories";
-import type { Actor } from "@ecclesia/domain/access";
+import { access, finance, platform } from "@ecclesia/db/repositories";
+import { type Actor, effectiveGrants, TWO_FACTOR_PERMISSIONS } from "@ecclesia/domain/access";
 import { type AccessLevel, accessLevel } from "@ecclesia/domain/billing";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -25,6 +25,8 @@ export type ChurchContext = {
   readonly memberships: readonly platform.ChurchMembership[];
   readonly roleName: { readonly en: string; readonly fr: string };
   readonly actor: Actor;
+  readonly financeLocked: boolean;
+  readonly twoFactorEnabled: boolean;
   readonly accessLevel: AccessLevel;
 };
 
@@ -35,10 +37,23 @@ export const getChurchContext = cache(async (): Promise<ChurchContext> => {
   const membership = memberships.find((m) => m.churchId === preferred) ?? memberships[0];
   if (!membership) redirect("/onboarding");
 
-  const { role, ledTeamIds } = await withChurch(db, membership.churchId, async (tx) => ({
-    role: await access.loadRole(tx, membership.roleId),
-    ledTeamIds: await access.loadLedTeamIds(tx, membership.personId, new Date()),
-  }));
+  const { role, ledTeamIds, financeSettings } = await withChurch(
+    db,
+    membership.churchId,
+    async (tx) => ({
+      role: await access.loadRole(tx, membership.roleId),
+      ledTeamIds: await access.loadLedTeamIds(tx, membership.personId, new Date()),
+      financeSettings: await finance.getSettings(tx),
+    }),
+  );
+
+  const leadsFinanceTeam =
+    financeSettings.financeTeamId !== null && ledTeamIds.includes(financeSettings.financeTeamId);
+  const grants = effectiveGrants(role?.grants ?? [], leadsFinanceTeam);
+  const needsTwoFactor = financeSettings.requireTwoFactor && !session.user.twoFactorEnabled;
+  const lockedGrants = needsTwoFactor
+    ? grants.filter((g) => TWO_FACTOR_PERMISSIONS.has(g.permission))
+    : [];
 
   return {
     user: { id: session.user.id, name: session.user.name, email: session.user.email },
@@ -49,8 +64,12 @@ export const getChurchContext = cache(async (): Promise<ChurchContext> => {
       userId: session.user.id,
       personId: membership.personId,
       ledTeamIds,
-      grants: role?.grants ?? [],
+      grants: needsTwoFactor
+        ? grants.filter((g) => !TWO_FACTOR_PERMISSIONS.has(g.permission))
+        : grants,
     },
+    financeLocked: lockedGrants.length > 0,
+    twoFactorEnabled: Boolean(session.user.twoFactorEnabled),
     accessLevel: membership.subscription
       ? accessLevel(membership.subscription, new Date())
       : "full",

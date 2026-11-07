@@ -12,7 +12,8 @@
     "./calendar": "./src/calendar/index.ts",
     "./shared": "./src/shared/index.ts",
     "./members": "./src/members/index.ts",
-    "./settings": "./src/settings/index.ts"
+    "./settings": "./src/settings/index.ts",
+    "./finance": "./src/finance/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

@@ -6,7 +6,7 @@ import type {
 } from "react";
 import { cn } from "@/lib/cn";
 
-const controlClasses =
+export const controlClasses =
   "w-full rounded-control border border-line bg-muted px-3.5 text-[0.9375rem] text-ink placeholder:text-ink-faint transition-[border-color,background-color,box-shadow] hover:border-line-strong focus:border-accent focus:bg-surface focus:outline-none focus:ring-4 focus:ring-brand-soft disabled:opacity-70 aria-[invalid=true]:border-danger aria-[invalid=true]:ring-danger-soft";
 
 export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {

@@ -8,17 +8,18 @@ import { cn } from "@/lib/cn";
 export function SettingsTabs({
   tabs,
   label,
+  root = "/settings",
 }: {
   tabs: readonly { href: Route; label: string }[];
   label: string;
+  root?: string;
 }) {
   const pathname = usePathname();
   return (
     <nav aria-label={label} className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
       <ul className="inline-flex gap-1 rounded-full bg-surface p-1 ring-1 ring-line ring-inset">
         {tabs.map((tab) => {
-          const active =
-            tab.href === "/settings" ? pathname === "/settings" : pathname.startsWith(tab.href);
+          const active = tab.href === root ? pathname === root : pathname.startsWith(tab.href);
           return (
             <li key={tab.href}>
               <Link

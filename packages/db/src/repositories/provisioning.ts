@@ -10,6 +10,7 @@ import {
   serviceTypes,
   subscriptions,
 } from "../schema";
+import { provisionFinance } from "./finance";
 
 const ROLE_NAMES: Record<DefaultRoleKey, LocalizedText> = {
   pastor: { en: "Pastor", fr: "Pasteur" },
@@ -102,6 +103,8 @@ export const provisionChurch = async (db: Database, input: ProvisionChurchInput)
         })),
       )
       .returning();
+
+    await provisionFinance(tx);
 
     const adminRole = roleRows.find((r) => r.key === "churchAdmin");
     if (!adminRole) throw new Error("Admin role missing");

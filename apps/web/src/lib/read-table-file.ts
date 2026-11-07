@@ -1,4 +1,3 @@
-import { MAX_IMPORT_ROWS } from "@ecclesia/domain/people";
 import Papa from "papaparse";
 
 export type ReadResult =
@@ -36,7 +35,7 @@ const readRows = async (file: File): Promise<unknown[][]> => {
   return parsed.data;
 };
 
-export const readImportFile = async (file: File): Promise<ReadResult> => {
+export const readTableFile = async (file: File, maxRows: number): Promise<ReadResult> => {
   if (file.size > MAX_BYTES || !/\.(xlsx|csv)$/i.test(file.name)) {
     return { ok: false, code: "import.unreadable" };
   }
@@ -45,7 +44,7 @@ export const readImportFile = async (file: File): Promise<ReadResult> => {
     const lastFilled = table.findLastIndex((row) => row.some((cell) => cell !== ""));
     const trimmed = table.slice(0, lastFilled + 1);
     if (trimmed.length < 2) return { ok: false, code: "import.empty" };
-    if (trimmed.length > MAX_IMPORT_ROWS + 1) return { ok: false, code: "import.tooManyRows" };
+    if (trimmed.length > maxRows + 1) return { ok: false, code: "import.tooManyRows" };
     return { ok: true, table: trimmed };
   } catch {
     return { ok: false, code: "import.unreadable" };

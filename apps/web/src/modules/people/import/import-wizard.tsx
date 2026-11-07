@@ -1,6 +1,6 @@
 "use client";
 
-import type { ImportColumn, ImportIssue } from "@ecclesia/domain/people";
+import { type ImportColumn, type ImportIssue, MAX_IMPORT_ROWS } from "@ecclesia/domain/people";
 import { FileSpreadsheet, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -11,9 +11,9 @@ import { Button } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/cn";
+import { readTableFile } from "@/lib/read-table-file";
 import { commitImportAction, previewImportAction } from "./actions";
 import type { ImportPreview, PreviewRow } from "./plan";
-import { readImportFile } from "./read-file";
 
 type Loaded = {
   readonly fileName: string;
@@ -48,7 +48,7 @@ export function ImportWizard({ templateHref }: { templateHref: string }) {
   const load = (file: File) => {
     setError(null);
     startTransition(async () => {
-      const read = await readImportFile(file);
+      const read = await readTableFile(file, MAX_IMPORT_ROWS);
       if (!read.ok) {
         setLoaded(null);
         setError(message(read.code));

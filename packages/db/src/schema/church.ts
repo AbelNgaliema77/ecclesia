@@ -6,7 +6,6 @@ import {
   bigint,
   boolean,
   check,
-  customType,
   date,
   foreignKey,
   index,
@@ -23,22 +22,11 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
+import { bytea, churchId, id, timestamps } from "./columns";
 import { churches } from "./platform";
 
 export const personStatusEnum = pgEnum("person_status", PERSON_STATUSES);
 export const genderEnum = pgEnum("gender", GENDERS);
-
-const id = () => uuid().primaryKey().default(sql`gen_random_uuid()`);
-
-const churchId = () =>
-  uuid()
-    .notNull()
-    .references(() => churches.id, { onDelete: "cascade" });
-
-const timestamps = () => ({
-  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-});
 
 export type LocalizedText = { en: string; fr: string };
 
@@ -371,12 +359,6 @@ export const CHURCH_SCOPED_TABLES = [
   "audit_log",
   "invitations",
 ] as const;
-
-const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
-  dataType: () => "bytea",
-  toDriver: (value) => Buffer.from(value),
-  fromDriver: (value) => new Uint8Array(value),
-});
 
 export const churchLogos = pgTable(
   "church_logos",

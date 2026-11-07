@@ -24,7 +24,7 @@ export function SignInForm() {
     const data = new FormData(event.currentTarget);
     setPending(true);
     setError(null);
-    const { error: signInError } = await authClient.signIn.email({
+    const { data: signedIn, error: signInError } = await authClient.signIn.email({
       email: String(data.get("email") ?? ""),
       password: String(data.get("password") ?? ""),
     });
@@ -39,6 +39,7 @@ export function SignInForm() {
       );
       return;
     }
+    if (signedIn && "twoFactorRedirect" in signedIn && signedIn.twoFactorRedirect) return;
     router.replace(safeNext(params.get("next") ?? undefined) as "/");
     router.refresh();
   };

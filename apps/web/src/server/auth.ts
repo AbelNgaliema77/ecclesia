@@ -1,8 +1,15 @@
 import "server-only";
-import { account, session, user, verification } from "@ecclesia/db/schema";
+import {
+  account,
+  session,
+  twoFactor as twoFactorTable,
+  user,
+  verification,
+} from "@ecclesia/db/schema";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { twoFactor } from "better-auth/plugins";
 import { isLocale } from "@/i18n/config";
 import { db } from "./db";
 import { sendEmail } from "./email";
@@ -14,7 +21,7 @@ export const auth = betterAuth({
   baseURL: env.BETTER_AUTH_URL,
   database: drizzleAdapter(db, {
     provider: "pg",
-    schema: { user, session, account, verification },
+    schema: { user, session, account, verification, twoFactor: twoFactorTable },
   }),
   emailAndPassword: {
     enabled: true,
@@ -46,5 +53,11 @@ export const auth = betterAuth({
   advanced: {
     useSecureCookies: env.NODE_ENV === "production",
   },
-  plugins: [nextCookies()],
+  plugins: [
+    twoFactor({
+      issuer: "Ecclesia",
+      backupCodeOptions: { amount: 10, length: 10 },
+    }),
+    nextCookies(),
+  ],
 });

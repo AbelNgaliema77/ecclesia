@@ -1,5 +1,13 @@
 import { test as setup } from "@playwright/test";
-import { ADMIN, ADMIN_STATE, LEADER, LEADER_STATE, signIn } from "./support";
+import {
+  ADMIN,
+  ADMIN_STATE,
+  LEADER,
+  LEADER_STATE,
+  signIn,
+  TREASURER,
+  TREASURER_STATE,
+} from "./support";
 
 setup("sign in as the demo admin", async ({ page }) => {
   await signIn(page, ADMIN);
@@ -9,4 +17,9 @@ setup("sign in as the demo admin", async ({ page }) => {
 setup("sign in as the demo team leader", async ({ page }) => {
   await signIn(page, LEADER);
   await page.context().storageState({ path: LEADER_STATE });
+});
+
+setup("sign in as the demo treasurer", async ({ page }) => {
+  await signIn(page, TREASURER);
+  await page.context().storageState({ path: TREASURER_STATE });
 });

@@ -16,6 +16,7 @@ import { Mark, Wordmark } from "@/components/shell/wordmark";
 import { localized } from "@/i18n/config";
 import { isTheme, THEME_COOKIE } from "@/lib/theme";
 import { OfflineSync } from "@/modules/attendance/offline/offline-sync";
+import { canOpenFinance } from "@/modules/finance/access";
 import { getChurchContext } from "@/server/context";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
@@ -44,7 +45,9 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     ...(can(actor, "teams.read")
       ? [{ key: "teams", href: "/teams", label: t("teams") } as const]
       : []),
-    { key: "finance", href: null, label: t("finance"), badge: t("soon") },
+    ...(canOpenFinance(actor, context.financeLocked)
+      ? [{ key: "finance", href: "/finance", label: t("finance") } as const]
+      : []),
     { key: "inventory", href: null, label: t("inventory"), badge: t("soon") },
     ...(can(actor, "settings.manage") || can(actor, "users.manage")
       ? [{ key: "settings", href: "/settings", label: t("settings") } as const]
@@ -60,6 +63,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       email={context.user.email}
       roleLabel={localized(context.roleName, locale)}
       signOutLabel={ts("signOut")}
+      securityLabel={ts("security")}
       accountLabel={ts("account")}
       compact={compact}
       placement={placement}

@@ -31,15 +31,20 @@
 - [ ] Church timezone used for all date display
 - [ ] Full offline app shell (service worker) so pages open without signal
 
-## Phase 2 – finance and inventory
+## Phase 2 – finance
 
-- Funds, giving capture, cash batches with two-person verification
-- EFT statement import and matching
-- Payment requests, approvals with limits, separation of duties
-- Budgets, month-end close, Section 18A certificates
-- Inventory: assets, custodians, check-out and return, consumables, maintenance
-- MFA required for finance roles
-- Finance access for team leaders who lead the Finance team
+- [x] Funds, giving capture and void-only corrections
+- [x] Cash counts with two-person verification
+- [x] Bank statement import with giving-number matching
+- [x] Donors, giving numbers and Section 18A certificates
+- [x] Payment requests with receipt photos and PDFs, approval limits and separation of duties
+- [x] Budgets, income and expense statements, CSV export, month-end close
+- [x] Two-step verification, required for finance access by default
+- [x] Finance access for the leader of the Finance team
+
+## Phase 2 – inventory
+
+- Assets, custodians, check-out and return, consumables, maintenance
 
 ## Phase 3 – growth
 

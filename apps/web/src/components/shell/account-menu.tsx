@@ -1,6 +1,7 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogOut, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useEffect, useId, useRef, useState, useTransition } from "react";
 import { authClient } from "@/lib/auth-client";
@@ -11,6 +12,7 @@ type AccountMenuProps = {
   email: string;
   roleLabel: string;
   signOutLabel: string;
+  securityLabel: string;
   accountLabel: string;
   compact?: boolean;
   placement?: "up" | "down";
@@ -29,6 +31,7 @@ export function AccountMenu({
   email,
   roleLabel,
   signOutLabel,
+  securityLabel,
   accountLabel,
   compact = false,
   placement = "up",
@@ -102,6 +105,14 @@ export function AccountMenu({
             </div>
           </div>
           <div className="flex flex-col gap-3 border-t border-line px-1 py-3">{children}</div>
+          <Link
+            href="/account/security"
+            onClick={() => setOpen(false)}
+            className="flex h-10 w-full items-center gap-2.5 rounded-control px-2 text-sm font-semibold hover:bg-muted"
+          >
+            <ShieldCheck aria-hidden className="size-4" />
+            {securityLabel}
+          </Link>
           <button
             type="button"
             disabled={pending}

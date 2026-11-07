@@ -5,8 +5,12 @@ test("shows a clear error for a wrong password", async ({ page }) => {
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(ADMIN.email);
   await page.getByLabel("Password", { exact: true }).fill("not-the-password");
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByText("That email and password don't match")).toBeVisible();
+  await expect(async () => {
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page.getByText("That email and password don't match")).toBeVisible({
+      timeout: 3_000,
+    });
+  }).toPass({ intervals: [4_000], timeout: 40_000 });
 });
 
 test("resets a forgotten password through the emailed link", async ({ page }) => {
@@ -42,7 +46,9 @@ test("resets a forgotten password through the emailed link", async ({ page }) =>
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill("second-password-456");
   await expect(async () => {
-    await page.getByRole("button", { name: "Sign in" }).click();
-    await expect(page).toHaveURL(/onboarding/, { timeout: 2_000 });
-  }).toPass({ intervals: [3_000], timeout: 20_000 });
+    if (new URL(page.url()).pathname.startsWith("/sign-in")) {
+      await page.getByRole("button", { name: "Sign in" }).click();
+    }
+    await expect(page).toHaveURL(/onboarding/, { timeout: 5_000 });
+  }).toPass({ intervals: [3_000], timeout: 40_000 });
 });

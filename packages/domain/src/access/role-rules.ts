@@ -20,6 +20,7 @@ export const ALLOWED_SCOPES: Record<Permission, readonly Scope[]> = {
   "payments.approve": ["church"],
   "budgets.read": ["church", "team"],
   "budgets.manage": ["church"],
+  "finance.manage": ["church"],
   "inventory.read": ["church"],
   "inventory.manage": ["church"],
   "inventory.borrow": ["church"],
@@ -38,6 +39,7 @@ export const PERMISSION_GROUPS: Record<string, readonly Permission[]> = {
     "payments.approve",
     "budgets.read",
     "budgets.manage",
+    "finance.manage",
   ],
   inventory: ["inventory.read", "inventory.manage", "inventory.borrow"],
 };

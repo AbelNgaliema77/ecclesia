@@ -23,6 +23,7 @@ test("imports people from a spreadsheet after a preview", async ({ page }) => {
     `Bad,${tag},not-an-email,Elder,Nowhere`,
   ].join("\n");
   await page.goto("/people/import");
+  await page.waitForLoadState("networkidle");
   await page.locator('input[type="file"]').setInputFiles({
     name: "people.csv",
     mimeType: "text/csv",

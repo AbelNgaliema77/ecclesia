@@ -10,6 +10,7 @@ const PNG = Buffer.from(
 
 test("changes the colour theme and logo for the whole church", async ({ page }) => {
   await page.goto("/settings/branding");
+  await page.waitForLoadState("networkidle");
 
   await expect(page.getByRole("radio", { name: "Ocean" })).toBeEnabled();
   await page.getByText("Ocean").click();

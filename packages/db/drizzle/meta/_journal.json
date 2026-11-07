@@ -43,6 +43,13 @@
       "when": 1793985246364,
       "tag": "0005_church_branding",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794053535996,
+      "tag": "0006_finance",
+      "breakpoints": true
     }
   ]
 }

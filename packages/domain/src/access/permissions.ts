@@ -15,6 +15,7 @@ export const PERMISSIONS = [
   "payments.approve",
   "budgets.read",
   "budgets.manage",
+  "finance.manage",
   "inventory.read",
   "inventory.manage",
   "inventory.borrow",
