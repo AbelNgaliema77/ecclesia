@@ -12,15 +12,11 @@ const ownerUrl = process.env.DATABASE_OWNER_URL;
 const person = (firstName: string, lastName: string) => ({
   firstName,
   lastName,
-  preferredName: null,
   gender: null,
   email: null,
   phone: null,
   dateOfBirth: null,
-  status: "member" as const,
-  firstVisitOn: null,
-  householdId: null,
-  notes: null,
+  joinedYear: null,
 });
 
 describe.skipIf(!appUrl || !ownerUrl)("team-scoped people visibility", () => {
@@ -42,9 +38,9 @@ describe.skipIf(!appUrl || !ownerUrl)("team-scoped people visibility", () => {
       })
     ).church.id;
     await withChurch(app, churchId, async (tx) => {
-      const leader = await people.insertPerson(tx, person("Lerato", "Leader"), null);
-      const member = await people.insertPerson(tx, person("Musa", "Member"), null);
-      await people.insertPerson(tx, person("Outside", "Person"), null);
+      const leader = await people.insertPerson(tx, person("Lerato", "Leader"));
+      const member = await people.insertPerson(tx, person("Musa", "Member"));
+      await people.insertPerson(tx, person("Outside", "Person"));
       const team = await teams.insertTeam(tx, {
         name: { en: "Media", fr: "Médias" },
         description: null,
@@ -106,14 +102,20 @@ describe.skipIf(!appUrl || !ownerUrl)("team-scoped people visibility", () => {
     expect(result.rows.map((r) => r.lastName)).toEqual(["Leader"]);
   });
 
-  it("filters workers and leaders and tags their teams", async () => {
+  it("filters by serving, leading or no team and tags their teams", async () => {
     await withChurch(app, churchId, async (tx) => {
-      const workers = await people.listPeople(
+      const serving = await people.listPeople(
         tx,
         { scope: "church" },
-        { filter: "workers", limit: 50, offset: 0 },
+        { filter: "serving", limit: 50, offset: 0 },
       );
-      expect(workers.rows.map((r) => r.lastName).sort()).toEqual(["Leader", "Member"]);
+      expect(serving.rows.map((r) => r.lastName).sort()).toEqual(["Leader", "Member"]);
+      const unassigned = await people.listPeople(
+        tx,
+        { scope: "church" },
+        { filter: "unassigned", limit: 50, offset: 0 },
+      );
+      expect(unassigned.rows.map((r) => r.lastName)).toEqual(["Person"]);
       const leaders = await people.listPeople(
         tx,
         { scope: "church" },
@@ -130,7 +132,7 @@ describe.skipIf(!appUrl || !ownerUrl)("team-scoped people visibility", () => {
 
   it("removes a deleted person from lists and ends their assignments", async () => {
     await withChurch(app, churchId, async (tx) => {
-      const extra = await people.insertPerson(tx, person("Temp", "Worker"), null);
+      const extra = await people.insertPerson(tx, person("Temp", "Worker"));
       const team = await teams.getTeamDetail(tx, teamId);
       const crew = team?.positions.find((p) => !p.isLeadership);
       if (!crew) throw new Error("missing crew");
@@ -145,7 +147,7 @@ describe.skipIf(!appUrl || !ownerUrl)("team-scoped people visibility", () => {
       const workers = await people.listPeople(
         tx,
         { scope: "church" },
-        { filter: "workers", limit: 50, offset: 0 },
+        { filter: "serving", limit: 50, offset: 0 },
       );
       expect(workers.rows.map((r) => r.lastName)).not.toContain("Worker");
       const after = await teams.getTeamDetail(tx, teamId);
@@ -155,18 +157,15 @@ describe.skipIf(!appUrl || !ownerUrl)("team-scoped people visibility", () => {
     });
   });
 
-  it("bulk inserts imported people with status history and lists import targets", async () => {
+  it("bulk inserts imported people and lists import targets", async () => {
     await withChurch(app, churchId, async (tx) => {
-      const inserted = await people.insertPeople(
-        tx,
-        [person("Bulk", "One"), person("Bulk", "Two")].map((p) => ({ ...p, status: "visitor" })),
-        null,
-      );
+      const inserted = await people.insertPeople(tx, [
+        person("Bulk", "One"),
+        person("Bulk", "Two"),
+      ]);
       expect(inserted).toHaveLength(2);
       const identities = await people.identityRecords(tx);
       expect(identities.map((p) => p.lastName)).toEqual(expect.arrayContaining(["One", "Two"]));
-      const history = await people.statusHistory(tx, inserted[0]?.id ?? "");
-      expect(history.map((h) => h.toStatus)).toEqual(["visitor"]);
       const targets = await teams.listImportTargets(tx);
       const media = targets.find((t) => t.teamId === teamId);
       expect(media?.positionId).not.toBeNull();

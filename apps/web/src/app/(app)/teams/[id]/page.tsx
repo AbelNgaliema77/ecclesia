@@ -103,7 +103,11 @@ export default async function TeamPage({ params }: { params: Promise<{ id: strin
                       displayName={positionName}
                       canDelete={position.historyCount === 0}
                       people={data.people}
-                      holderIds={position.assignments.map((a) => a.personId)}
+                      holders={position.assignments.map((a) => ({
+                        assignmentId: a.assignmentId,
+                        personId: a.personId,
+                        name: `${a.firstName} ${a.lastName}`,
+                      }))}
                       full={full}
                     />
                   ) : null}

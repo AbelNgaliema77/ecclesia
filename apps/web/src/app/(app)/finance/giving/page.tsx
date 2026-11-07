@@ -36,9 +36,7 @@ export default async function GivingPage({ searchParams }: PageProps) {
     return `/finance/giving?${params}`;
   };
   const name = (row: (typeof data.rows)[number]) =>
-    row.personLastName
-      ? `${row.personPreferredName ?? row.personFirstName} ${row.personLastName}`
-      : null;
+    row.personLastName ? `${row.personFirstName} ${row.personLastName}` : null;
 
   return (
     <div className="flex flex-col gap-6">

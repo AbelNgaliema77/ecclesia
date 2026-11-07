@@ -14,6 +14,7 @@ import {
   deletePositionAction,
   deleteTeamAction,
   endAssignmentAction,
+  handOverAction,
   savePositionAction,
   saveTeamAction,
 } from "./actions";
@@ -266,16 +267,108 @@ export function EndAssignmentDialog({
       successMessage={t("ended")}
     >
       {({ fieldError }) => (
-        <Field id={`end-${assignmentId}`} label={t("endsOn")} error={fieldError("endsOn")}>
+        <Field id={`end-${assignmentId}`} label={t("stopsFrom")} error={fieldError("from")}>
           <Input
             id={`end-${assignmentId}`}
-            name="endsOn"
+            name="from"
             type="date"
             required
             defaultValue={today()}
             className="sm:w-48"
           />
         </Field>
+      )}
+    </ActionDialog>
+  );
+}
+
+export function HandOverDialog({
+  trigger,
+  positionId,
+  positionName,
+  holders,
+  people,
+}: {
+  trigger: Trigger;
+  positionId: string;
+  positionName: string;
+  holders: readonly { assignmentId: string; personId: string; name: string }[];
+  people: readonly { id: string; label: string }[];
+}) {
+  const t = useTranslations("teams");
+  const holderIds = holders.map((h) => h.personId);
+  const available = people.filter((p) => !holderIds.includes(p.id));
+  const [only] = holders;
+  return (
+    <ActionDialog
+      action={handOverAction}
+      hidden={holders.length === 1 && only ? { assignmentId: only.assignmentId } : {}}
+      trigger={trigger}
+      title={t("handOverTitle", { position: positionName })}
+      description={
+        holders.length === 1 && only
+          ? t("handOverLead", { name: only.name })
+          : t("handOverLeadMany")
+      }
+      submitLabel={t("saveHandOver")}
+      successMessage={t("handedOver")}
+    >
+      {({ fieldError }) => (
+        <>
+          {holders.length > 1 ? (
+            <Field
+              id={`handover-out-${positionId}`}
+              label={t("steppingDown")}
+              error={fieldError("assignmentId")}
+            >
+              <Select
+                id={`handover-out-${positionId}`}
+                name="assignmentId"
+                required
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  {t("choosePerson")}
+                </option>
+                {holders.map((holder) => (
+                  <option key={holder.assignmentId} value={holder.assignmentId}>
+                    {holder.name}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          ) : null}
+          <Field
+            id={`handover-in-${positionId}`}
+            label={t("takingOver")}
+            error={fieldError("personId")}
+          >
+            <Select id={`handover-in-${positionId}`} name="personId" required defaultValue="">
+              <option value="" disabled>
+                {t("choosePerson")}
+              </option>
+              {available.map((person) => (
+                <option key={person.id} value={person.id}>
+                  {person.label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field
+            id={`handover-from-${positionId}`}
+            label={t("handOverFrom")}
+            error={fieldError("from")}
+          >
+            <Input
+              id={`handover-from-${positionId}`}
+              name="from"
+              type="date"
+              required
+              defaultValue={today()}
+              className="sm:w-48"
+            />
+          </Field>
+        </>
       )}
     </ActionDialog>
   );

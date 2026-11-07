@@ -2,13 +2,13 @@ import { displayName, initials, PEOPLE_FILTERS } from "@ecclesia/domain/people";
 import { FileUp, Plus, Search, UsersRound } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getFormatter, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { buttonClasses } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input, Select } from "@/components/ui/field";
 import { PageHeader } from "@/components/ui/page-header";
 import { loadPeople, parsePeopleSearch } from "@/modules/people/queries";
-import { ServingTags, StatusBadge } from "@/modules/people/status-badge";
+import { ServingTags } from "@/modules/people/serving-tags";
 
 export const metadata: Metadata = { title: "People" };
 
@@ -22,11 +22,7 @@ const AVATAR_TONES = [
 
 export default async function PeoplePage({ searchParams }: PageProps) {
   const search = parsePeopleSearch(await searchParams);
-  const [data, t, format] = await Promise.all([
-    loadPeople(search),
-    getTranslations("people"),
-    getFormatter(),
-  ]);
+  const [data, t] = await Promise.all([loadPeople(search), getTranslations("people")]);
 
   const pageHref = (page: number) => {
     const params = new URLSearchParams();
@@ -115,9 +111,6 @@ export default async function PeoplePage({ searchParams }: PageProps) {
                 <th scope="col" className="px-5 py-3.5">
                   {t("columns.name")}
                 </th>
-                <th scope="col" className="px-4 py-3.5">
-                  {t("columns.status")}
-                </th>
                 <th scope="col" className="hidden px-4 py-3.5 md:table-cell">
                   {t("columns.teams")}
                 </th>
@@ -127,8 +120,8 @@ export default async function PeoplePage({ searchParams }: PageProps) {
                 <th scope="col" className="hidden px-4 py-3.5 2xl:table-cell">
                   {t("columns.email")}
                 </th>
-                <th scope="col" className="hidden px-5 py-3.5 lg:table-cell">
-                  {t("columns.firstVisit")}
+                <th scope="col" className="px-5 py-3.5 text-right sm:text-left">
+                  {t("columns.joined")}
                 </th>
               </tr>
             </thead>
@@ -154,9 +147,6 @@ export default async function PeoplePage({ searchParams }: PageProps) {
                       </div>
                     ) : null}
                   </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={person.status} />
-                  </td>
                   <td className="hidden px-4 py-3 md:table-cell">
                     {person.serving.length > 0 ? (
                       <ServingTags serving={person.serving} />
@@ -170,13 +160,8 @@ export default async function PeoplePage({ searchParams }: PageProps) {
                   <td className="hidden max-w-64 truncate px-4 py-3 text-ink-soft 2xl:table-cell">
                     {person.email ?? "–"}
                   </td>
-                  <td className="hidden px-5 py-3 text-ink-soft lg:table-cell">
-                    {person.firstVisitOn
-                      ? format.dateTime(person.firstVisitOn, {
-                          dateStyle: "medium",
-                          timeZone: "UTC",
-                        })
-                      : "–"}
+                  <td className="px-5 py-3 text-right text-ink-soft tabular-nums sm:text-left">
+                    {person.joinedYear ?? "–"}
                   </td>
                 </tr>
               ))}

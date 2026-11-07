@@ -1,4 +1,3 @@
-import type { PersonStatus } from "@ecclesia/domain/people";
 import { en, en_ZA, Faker, fr } from "@faker-js/faker";
 import { hashPassword } from "better-auth/crypto";
 import { eq, inArray } from "drizzle-orm";
@@ -92,14 +91,6 @@ const TEAMS: {
   },
 ];
 
-const pickStatus = (): PersonStatus => {
-  const roll = rng.number.float({ min: 0, max: 1 });
-  if (roll < 0.12) return "visitor";
-  if (roll < 0.3) return "regular";
-  if (roll < 0.97) return "member";
-  return "inactive";
-};
-
 const seasonalFactor = (date: Date): number => {
   const month = date.getUTCMonth();
   if (month === 3) return 1.18;
@@ -168,36 +159,26 @@ const historyStart = new Date(
 await withChurch(app, churchId, async (tx) => {
   const servingCandidates: string[] = [];
   const everyone: string[] = [];
-  for (let i = 0; i < 220; i++) {
+  for (let i = 0; i < 72; i++) {
     const faker = i % 3 === 0 ? frFaker : zaFaker;
     const gender = faker.helpers.arrayElement(["male", "female"] as const);
     const firstName = faker.person.firstName(gender);
     const lastName = faker.person.lastName();
-    const firstVisit = faker.date.between({ from: historyStart, to: now });
-    const status = pickStatus();
-    const person = await people.insertPerson(
-      tx,
-      {
-        firstName,
-        lastName,
-        preferredName: null,
-        gender,
-        email: faker.datatype.boolean(0.7)
-          ? faker.internet.email({ firstName, lastName, provider: "example.org" }).toLowerCase()
-          : null,
-        phone: faker.datatype.boolean(0.85)
-          ? `+27${faker.string.numeric({ length: 9, allowLeadingZeros: false })}`
-          : null,
-        dateOfBirth: faker.date.birthdate({ min: 6, max: 78, mode: "age" }),
-        status,
-        firstVisitOn: i < 160 ? faker.date.past({ years: 6, refDate: historyStart }) : firstVisit,
-        householdId: null,
-        notes: null,
-      },
-      DEMO_USER_ID,
-    );
-    if (status === "member") servingCandidates.push(person.id);
-    if (status !== "visitor") everyone.push(person.id);
+    const person = await people.insertPerson(tx, {
+      firstName,
+      lastName,
+      gender,
+      email: faker.datatype.boolean(0.7)
+        ? faker.internet.email({ firstName, lastName, provider: "example.org" }).toLowerCase()
+        : null,
+      phone: faker.datatype.boolean(0.85)
+        ? `+27${faker.string.numeric({ length: 9, allowLeadingZeros: false })}`
+        : null,
+      dateOfBirth: faker.date.birthdate({ min: 6, max: 78, mode: "age" }),
+      joinedYear: rng.number.int({ min: now.getUTCFullYear() - 18, max: now.getUTCFullYear() }),
+    });
+    if (i < 60) servingCandidates.push(person.id);
+    everyone.push(person.id);
   }
 
   const pool = rng.helpers.shuffle([...servingCandidates]);

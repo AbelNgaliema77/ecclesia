@@ -39,44 +39,28 @@ describe.skipIf(!appUrl || !ownerUrl)("tenant isolation", () => {
     churchB = b.church.id;
 
     personA = await withChurch(app, churchA, async (tx) => {
-      const p = await people.insertPerson(
-        tx,
-        {
-          firstName: "Thandi",
-          lastName: "Nkosi",
-          preferredName: null,
-          gender: "female",
-          email: null,
-          phone: null,
-          dateOfBirth: null,
-          status: "member",
-          firstVisitOn: null,
-          householdId: null,
-          notes: null,
-        },
-        userIds[0] ?? null,
-      );
+      const p = await people.insertPerson(tx, {
+        firstName: "Thandi",
+        lastName: "Nkosi",
+        gender: "female",
+        email: null,
+        phone: null,
+        dateOfBirth: null,
+        joinedYear: null,
+      });
       return p.id;
     });
 
     positionB = await withChurch(app, churchB, async (tx) => {
-      await people.insertPerson(
-        tx,
-        {
-          firstName: "Jean",
-          lastName: "Mukendi",
-          preferredName: null,
-          gender: "male",
-          email: null,
-          phone: null,
-          dateOfBirth: null,
-          status: "member",
-          firstVisitOn: null,
-          householdId: null,
-          notes: null,
-        },
-        userIds[1] ?? null,
-      );
+      await people.insertPerson(tx, {
+        firstName: "Jean",
+        lastName: "Mukendi",
+        gender: "male",
+        email: null,
+        phone: null,
+        dateOfBirth: null,
+        joinedYear: null,
+      });
       const team = await teams.insertTeam(tx, {
         name: { en: "Worship", fr: "Louange" },
         description: null,

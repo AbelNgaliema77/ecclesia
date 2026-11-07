@@ -1,8 +1,9 @@
 import "server-only";
-import { people } from "@ecclesia/db/repositories";
+import { people, teams } from "@ecclesia/db/repositories";
 import { broadestScope, can } from "@ecclesia/domain/access";
 import { PEOPLE_FILTERS, type PeopleFilter } from "@ecclesia/domain/people";
 import { notFound } from "next/navigation";
+import { localized } from "@/i18n/config";
 import { readChurch } from "@/server/queries";
 import { visibilityFor } from "./visibility";
 
@@ -52,14 +53,29 @@ export const loadPerson = async (id: string) =>
     const teamIds = await people.personTeamIds(tx, id);
     const resource = { personId: person.id, teamIds };
     if (!can(actor, "people.read", resource)) notFound();
-    const [history, serving] = await Promise.all([
-      people.statusHistory(tx, id),
+    const [assignments, serving] = await Promise.all([
+      teams.activeAssignmentsFor(tx, id),
       people.servingFor(tx, [id]),
     ]);
     return {
       person,
-      history,
+      assignments,
       serving: serving.get(id) ?? [],
       canWrite: can(actor, "people.write", resource),
+    };
+  });
+
+export const loadNewPersonOptions = async (locale: string) =>
+  readChurch("people.write", async ({ tx, actor, accessLevel }) => {
+    const churchWide = broadestScope(actor.grants, "people.write") === "church";
+    const targets = await teams.listImportTargets(tx);
+    return {
+      disabled: accessLevel !== "full",
+      teamRequired: !churchWide,
+      teams: targets
+        .filter(
+          (target) => target.positionId && (churchWide || actor.ledTeamIds.includes(target.teamId)),
+        )
+        .map((target) => ({ id: target.teamId, name: localized(target.name, locale) })),
     };
   });

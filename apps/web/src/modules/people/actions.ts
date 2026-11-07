@@ -1,22 +1,27 @@
 "use server";
 
-import { audit, people } from "@ecclesia/db/repositories";
+import { audit, people, teams } from "@ecclesia/db/repositories";
 import { broadestScope, can } from "@ecclesia/domain/access";
-import { personInputSchema, transitionStatus } from "@ecclesia/domain/people";
+import { personInputSchema } from "@ecclesia/domain/people";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { ActionState } from "@/lib/action-state";
-import { ensure, formToObject, parseInput, runChurchAction, unwrap } from "@/server/action";
+import { ensure, formToObject, parseInput, runChurchAction } from "@/server/action";
 
 const idSchema = z.uuid();
+
+const teamIdSchema = z
+  .union([z.literal(""), z.uuid()])
+  .optional()
+  .transform((value) => value || null);
+
+const startOfToday = () => new Date(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`);
 
 const toPersonInput = (form: Record<string, string>) => ({
   ...form,
   gender: form.gender || null,
   dateOfBirth: form.dateOfBirth || null,
-  firstVisitOn: form.firstVisitOn || null,
-  householdId: form.householdId || null,
 });
 
 export async function createPersonAction(
@@ -26,9 +31,25 @@ export async function createPersonAction(
   const result = await runChurchAction(
     { permission: "people.write", write: true },
     async ({ tx, actor }) => {
-      ensure(broadestScope(actor.grants, "people.write") !== "self");
-      const input = parseInput(personInputSchema, toPersonInput(formToObject(formData)));
-      const person = await people.insertPerson(tx, input, actor.userId);
+      const scope = broadestScope(actor.grants, "people.write");
+      ensure(scope !== "self");
+      const form = formToObject(formData);
+      const input = parseInput(personInputSchema, toPersonInput(form));
+      const teamId = parseInput(teamIdSchema, form.teamId);
+      ensure(scope === "church" || (teamId !== null && actor.ledTeamIds.includes(teamId)));
+      const target = teamId
+        ? (await teams.listImportTargets(tx)).find((entry) => entry.teamId === teamId)
+        : null;
+      ensure(teamId === null || Boolean(target?.positionId), "people.teamFull");
+      const person = await people.insertPerson(tx, input);
+      if (target?.positionId) {
+        await teams.insertAssignment(tx, {
+          personId: person.id,
+          positionId: target.positionId,
+          startsOn: startOfToday(),
+          endsOn: null,
+        });
+      }
       await audit.recordAudit(tx, {
         actorUserId: actor.userId,
         action: "person.created",
@@ -39,7 +60,10 @@ export async function createPersonAction(
       return { id: person.id };
     },
   );
-  if (result.status === "success") revalidatePath("/people");
+  if (result.status === "success") {
+    revalidatePath("/people");
+    revalidatePath("/teams", "layout");
+  }
   return result;
 }
 
@@ -58,8 +82,7 @@ export async function updatePersonAction(
       const teamIds = await people.personTeamIds(tx, id);
       ensure(can(actor, "people.write", { personId: id, teamIds }));
       const input = parseInput(personInputSchema, toPersonInput(form));
-      unwrap(transitionStatus(existing.status, input.status));
-      const updated = await people.updatePerson(tx, id, input, existing.status, actor.userId);
+      const updated = await people.updatePerson(tx, id, input);
       await audit.recordAudit(tx, {
         actorUserId: actor.userId,
         action: "person.updated",

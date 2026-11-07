@@ -1,18 +1,13 @@
 "use client";
 
-import {
-  canTransition,
-  GENDERS,
-  PERSON_STATUSES,
-  type PersonStatus,
-} from "@ecclesia/domain/people";
+import { EARLIEST_JOINED_YEAR, GENDERS } from "@ecclesia/domain/people";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import { useActionMessages } from "@/components/forms/use-field-error";
 import { Button } from "@/components/ui/button";
-import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import { Field, Input, Select } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import { idleState } from "@/lib/action-state";
 import { createPersonAction, updatePersonAction } from "./actions";
@@ -21,27 +16,23 @@ export type PersonFormValues = {
   id?: string;
   firstName: string;
   lastName: string;
-  preferredName: string | null;
   gender: string | null;
   email: string | null;
   phone: string | null;
   dateOfBirth: string | null;
-  status: PersonStatus;
-  firstVisitOn: string | null;
-  notes: string | null;
+  joinedYear: number | null;
 };
+
+export type TeamOption = { readonly id: string; readonly name: string };
 
 const EMPTY: PersonFormValues = {
   firstName: "",
   lastName: "",
-  preferredName: null,
   gender: null,
   email: null,
   phone: null,
   dateOfBirth: null,
-  status: "visitor",
-  firstVisitOn: null,
-  notes: null,
+  joinedYear: null,
 };
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -59,9 +50,13 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 export function PersonForm({
   initial = EMPTY,
   disabled = false,
+  teams = [],
+  teamRequired = false,
 }: {
   initial?: PersonFormValues;
   disabled?: boolean;
+  teams?: readonly TeamOption[];
+  teamRequired?: boolean;
 }) {
   const t = useTranslations("people");
   const tc = useTranslations("common");
@@ -79,11 +74,9 @@ export function PersonForm({
     if (!isEdit) router.push(`/people/${state.data.id}`);
   }, [state, isEdit, router, t]);
 
-  const statuses = isEdit
-    ? PERSON_STATUSES.filter((s) => canTransition(initial.status, s))
-    : PERSON_STATUSES.filter((s) => s !== "inactive");
+  const thisYear = new Date().getFullYear();
 
-  const field = (name: keyof PersonFormValues, label: string, control: ReactNode, wide = false) => (
+  const field = (name: string, label: string, control: ReactNode, wide = false) => (
     <Field
       id={name}
       label={label}
@@ -125,16 +118,6 @@ export function PersonForm({
               maxLength={80}
               autoComplete="family-name"
               aria-invalid={invalid("lastName")}
-            />,
-          )}
-          {field(
-            "preferredName",
-            t("fields.preferredName"),
-            <Input
-              id="preferredName"
-              name="preferredName"
-              defaultValue={initial.preferredName ?? ""}
-              maxLength={80}
             />,
           )}
           {field(
@@ -192,37 +175,41 @@ export function PersonForm({
 
         <Section title={t("sections.church")}>
           {field(
-            "status",
-            t("fields.status"),
-            <Select id="status" name="status" defaultValue={initial.status}>
-              {statuses.map((s) => (
-                <option key={s} value={s}>
-                  {t(`status.${s}`)}
-                </option>
-              ))}
-            </Select>,
-          )}
-          {field(
-            "firstVisitOn",
-            t("fields.firstVisitOn"),
+            "joinedYear",
+            t("fields.joinedYear"),
             <Input
-              id="firstVisitOn"
-              name="firstVisitOn"
-              type="date"
-              defaultValue={initial.firstVisitOn ?? ""}
+              id="joinedYear"
+              name="joinedYear"
+              type="number"
+              inputMode="numeric"
+              min={EARLIEST_JOINED_YEAR}
+              max={thisYear}
+              step={1}
+              placeholder={String(thisYear)}
+              defaultValue={initial.joinedYear ?? ""}
+              aria-invalid={invalid("joinedYear")}
             />,
           )}
-          {field(
-            "notes",
-            t("fields.notes"),
-            <Textarea
-              id="notes"
-              name="notes"
-              defaultValue={initial.notes ?? ""}
-              maxLength={2000}
-            />,
-            true,
-          )}
+          {isEdit || teams.length === 0
+            ? null
+            : field(
+                "teamId",
+                t("fields.team"),
+                <Select
+                  id="teamId"
+                  name="teamId"
+                  defaultValue={teamRequired && teams.length === 1 ? teams[0]?.id : ""}
+                  required={teamRequired}
+                  aria-invalid={invalid("teamId")}
+                >
+                  <option value="">{teamRequired ? t("chooseTeam") : t("noTeamYet")}</option>
+                  {teams.map((team) => (
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                    </option>
+                  ))}
+                </Select>,
+              )}
         </Section>
       </fieldset>
 

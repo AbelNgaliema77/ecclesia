@@ -1,28 +1,7 @@
-import type { PeopleFilter, PersonStatus, ValidPerson } from "@ecclesia/domain/people";
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  gte,
-  ilike,
-  inArray,
-  isNull,
-  or,
-  type SQL,
-  sql,
-} from "drizzle-orm";
+import type { PeopleFilter, ValidPerson } from "@ecclesia/domain/people";
+import { and, asc, count, eq, gte, ilike, inArray, isNull, or, type SQL, sql } from "drizzle-orm";
 import { currentChurchId, type Tx } from "../client";
-import {
-  assignments,
-  type LocalizedText,
-  memberships,
-  people,
-  personStatusHistory,
-  positions,
-  teams,
-} from "../schema";
+import { assignments, type LocalizedText, memberships, people, positions, teams } from "../schema";
 
 export type Visibility =
   | { readonly scope: "church" }
@@ -57,20 +36,17 @@ export type ListPeopleQuery = {
   readonly offset: number;
 };
 
-const servingFilter = (leadersOnly: boolean): SQL =>
-  inArray(
-    people.id,
-    sql`(select ${assignments.personId} from ${assignments}
-         inner join ${positions} on ${positions.id} = ${assignments.positionId}
-         where (${assignments.endsOn} is null or ${assignments.endsOn} >= current_date)
-         ${leadersOnly ? sql`and ${positions.isLeadership} = true` : sql``})`,
-  );
+const servingIds = (leadersOnly: boolean): SQL =>
+  sql`(select ${assignments.personId} from ${assignments}
+       inner join ${positions} on ${positions.id} = ${assignments.positionId}
+       where (${assignments.endsOn} is null or ${assignments.endsOn} >= current_date)
+       ${leadersOnly ? sql`and ${positions.isLeadership} = true` : sql``})`;
 
 const filterClause = (filter: PeopleFilter | undefined): SQL | undefined => {
-  if (!filter) return undefined;
-  if (filter === "workers") return servingFilter(false);
-  if (filter === "leaders") return servingFilter(true);
-  return eq(people.status, filter);
+  if (filter === "serving") return inArray(people.id, servingIds(false));
+  if (filter === "leaders") return inArray(people.id, servingIds(true));
+  if (filter === "unassigned") return sql`${people.id} not in ${servingIds(false)}`;
+  return undefined;
 };
 
 export const listPeople = async (tx: Tx, visibility: Visibility, query: ListPeopleQuery) => {
@@ -83,7 +59,6 @@ export const listPeople = async (tx: Tx, visibility: Visibility, query: ListPeop
       ? or(
           ilike(people.firstName, `%${term}%`),
           ilike(people.lastName, `%${term}%`),
-          ilike(people.preferredName, `%${term}%`),
           ilike(people.email, `%${term}%`),
           ilike(people.phone, `%${term}%`),
         )
@@ -187,64 +162,31 @@ export const getPerson = async (tx: Tx, id: string): Promise<PersonRow | null> =
   return row ?? null;
 };
 
-export const insertPerson = async (
-  tx: Tx,
-  input: ValidPerson,
-  actorUserId: string | null,
-): Promise<PersonRow> => {
+export const insertPerson = async (tx: Tx, input: ValidPerson): Promise<PersonRow> => {
   const [row] = await tx
     .insert(people)
     .values({ ...input, churchId: currentChurchId })
     .returning();
   if (!row) throw new Error("Insert failed");
-  await tx.insert(personStatusHistory).values({
-    churchId: currentChurchId,
-    personId: row.id,
-    fromStatus: null,
-    toStatus: row.status,
-    changedBy: actorUserId,
-  });
   return row;
 };
 
-export const updatePerson = async (
-  tx: Tx,
-  id: string,
-  input: ValidPerson,
-  previousStatus: PersonStatus,
-  actorUserId: string | null,
-): Promise<PersonRow> => {
+export const updatePerson = async (tx: Tx, id: string, input: ValidPerson): Promise<PersonRow> => {
   const [row] = await tx.update(people).set(input).where(eq(people.id, id)).returning();
   if (!row) throw new Error("Update failed");
-  if (row.status !== previousStatus) {
-    await tx.insert(personStatusHistory).values({
-      churchId: currentChurchId,
-      personId: id,
-      fromStatus: previousStatus,
-      toStatus: row.status,
-      changedBy: actorUserId,
-    });
-  }
   return row;
 };
 
-export const countPeopleByStatus = async (tx: Tx) =>
-  tx
-    .select({ status: people.status, total: count() })
-    .from(people)
-    .where(isNull(people.deletedAt))
-    .groupBy(people.status);
+export const countPeople = async (tx: Tx): Promise<number> => {
+  const [row] = await tx.select({ total: count() }).from(people).where(isNull(people.deletedAt));
+  return row?.total ?? 0;
+};
 
-export const countFirstVisitsSince = async (tx: Tx, since: Date): Promise<number> => {
+export const countJoinedIn = async (tx: Tx, year: number): Promise<number> => {
   const [row] = await tx
     .select({ total: count() })
     .from(people)
-    .where(
-      and(
-        isNull(people.deletedAt),
-        gte(people.firstVisitOn, sql`${since.toISOString().slice(0, 10)}::date`),
-      ),
-    );
+    .where(and(isNull(people.deletedAt), eq(people.joinedYear, year)));
   return row?.total ?? 0;
 };
 
@@ -262,27 +204,15 @@ export const personTeamIds = async (tx: Tx, personId: string): Promise<string[]>
   return rows.map((r) => r.teamId);
 };
 
-export const statusHistory = async (tx: Tx, personId: string) =>
-  tx
-    .select({
-      fromStatus: personStatusHistory.fromStatus,
-      toStatus: personStatusHistory.toStatus,
-      changedAt: personStatusHistory.changedAt,
-    })
-    .from(personStatusHistory)
-    .where(eq(personStatusHistory.personId, personId))
-    .orderBy(desc(personStatusHistory.changedAt));
-
 export const listPeopleOptions = async (tx: Tx) =>
   tx
     .select({
       id: people.id,
       firstName: people.firstName,
       lastName: people.lastName,
-      status: people.status,
     })
     .from(people)
-    .where(and(isNull(people.deletedAt), sql`${people.status} <> 'inactive'`))
+    .where(isNull(people.deletedAt))
     .orderBy(asc(people.lastName), asc(people.firstName));
 
 export const identityRecords = (tx: Tx) =>
@@ -299,23 +229,12 @@ export const identityRecords = (tx: Tx) =>
 export const insertPeople = async (
   tx: Tx,
   inputs: readonly ValidPerson[],
-  actorUserId: string | null,
 ): Promise<{ id: string }[]> => {
   if (inputs.length === 0) return [];
-  const rows = await tx
+  return tx
     .insert(people)
     .values(inputs.map((input) => ({ ...input, churchId: currentChurchId })))
-    .returning({ id: people.id, status: people.status });
-  await tx.insert(personStatusHistory).values(
-    rows.map((row) => ({
-      churchId: currentChurchId,
-      personId: row.id,
-      fromStatus: null,
-      toStatus: row.status,
-      changedBy: actorUserId,
-    })),
-  );
-  return rows.map(({ id }) => ({ id }));
+    .returning({ id: people.id });
 };
 
 export const existingIds = async (tx: Tx, ids: readonly string[]): Promise<Set<string>> => {
@@ -337,9 +256,8 @@ export const displayNames = async (
       id: people.id,
       firstName: people.firstName,
       lastName: people.lastName,
-      preferredName: people.preferredName,
     })
     .from(people)
     .where(inArray(people.id, [...ids]));
-  return new Map(rows.map((r) => [r.id, `${r.preferredName ?? r.firstName} ${r.lastName}`]));
+  return new Map(rows.map((r) => [r.id, `${r.firstName} ${r.lastName}`]));
 };

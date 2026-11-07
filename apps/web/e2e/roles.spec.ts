@@ -12,7 +12,7 @@ test("a team leader sees people and their own teams only", async ({ page }) => {
   await expect(nav.getByRole("link", { name: "Settings" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Your teams" })).toBeVisible();
 
-  await page.goto("/people?filter=visitor");
+  await page.goto("/people?filter=unassigned");
   await page.locator("tbody tr a").first().click();
   await expect(page.getByRole("button", { name: "Delete person" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Save person" })).toHaveCount(0);

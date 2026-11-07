@@ -4,8 +4,9 @@ import { Command } from "cmdk";
 import { CalendarPlus, CornerDownLeft, Search, UserPlus, UserRound } from "lucide-react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
+import { localized } from "@/i18n/config";
 import { cn } from "@/lib/cn";
 import { type PersonHit, searchPeopleAction } from "@/modules/search/actions";
 import { NAV_ICONS } from "./nav-icon";
@@ -33,7 +34,7 @@ export function CommandPalette({
   variant,
 }: PaletteProps) {
   const t = useTranslations("palette");
-  const ts = useTranslations("people.status");
+  const locale = useLocale();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -140,7 +141,9 @@ export function CommandPalette({
                 >
                   <UserRound aria-hidden className="size-4" />
                   <span className="flex-1 text-ink">{hit.name}</span>
-                  <span className="text-xs">{ts(hit.status)}</span>
+                  <span className="truncate text-xs">
+                    {hit.teams.map((team) => localized(team, locale)).join(", ")}
+                  </span>
                 </Command.Item>
               ))}
             </Command.Group>

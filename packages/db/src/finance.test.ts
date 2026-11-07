@@ -45,23 +45,15 @@ describe.skipIf(!appUrl || !ownerUrl)("finance repositories", () => {
       })
     ).church.id;
     personId = await run(async (tx) => {
-      const person = await people.insertPerson(
-        tx,
-        {
-          firstName: "Ama",
-          lastName: "Mensah",
-          preferredName: null,
-          gender: "female",
-          email: null,
-          phone: null,
-          dateOfBirth: null,
-          status: "member",
-          firstVisitOn: null,
-          householdId: null,
-          notes: null,
-        },
-        admin,
-      );
+      const person = await people.insertPerson(tx, {
+        firstName: "Ama",
+        lastName: "Mensah",
+        gender: "female",
+        email: null,
+        phone: null,
+        dateOfBirth: null,
+        joinedYear: null,
+      });
       return person.id;
     });
   });

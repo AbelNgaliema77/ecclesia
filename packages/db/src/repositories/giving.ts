@@ -39,7 +39,6 @@ import {
 const personName = {
   personFirstName: people.firstName,
   personLastName: people.lastName,
-  personPreferredName: people.preferredName,
 };
 
 const sumCents = sql<number>`coalesce(sum(${gifts.amountCents}), 0)::bigint`.mapWith(Number);
@@ -232,7 +231,6 @@ export const listDonors = async (tx: Tx, query: DonorQuery) => {
       personId: people.id,
       firstName: people.firstName,
       lastName: people.lastName,
-      preferredName: people.preferredName,
       givingNumber: donorProfiles.givingNumber,
       yearCents: sql<number>`coalesce(${giftTotals.yearCents}, 0)`.mapWith(Number),
       lastGiftOn: giftTotals.lastGiftOn,

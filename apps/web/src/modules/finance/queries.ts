@@ -181,7 +181,6 @@ export const loadGiving = (params: SearchParams) =>
         ...row,
         personFirstName: showNames ? row.personFirstName : null,
         personLastName: showNames ? row.personLastName : null,
-        personPreferredName: showNames ? row.personPreferredName : null,
         locked: closed.has(monthOf(row.receivedOn)),
       })),
       total: result.total,

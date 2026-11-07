@@ -73,7 +73,7 @@ export const seedFinance = async (
     signatoryName: "Demo Treasurer",
   });
 
-  const donors = rng.helpers.shuffle([...input.everyone]).slice(0, 90);
+  const donors = rng.helpers.shuffle([...input.everyone]).slice(0, 60);
   await tx.insert(donorProfiles).values(
     donors.map((personId, index) => ({
       churchId: currentChurchId,

@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Plus, Trash2, UserPlus, X } from "lucide-react";
+import { ArrowLeftRight, Pencil, Plus, Trash2, UserPlus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,6 +8,7 @@ import {
   DeletePositionDialog,
   DeleteTeamDialog,
   EndAssignmentDialog,
+  HandOverDialog,
   PositionDialog,
   TeamDialog,
 } from "./team-dialogs";
@@ -92,7 +93,7 @@ export function PositionActions({
   displayName,
   canDelete,
   people,
-  holderIds,
+  holders,
   full,
 }: {
   teamId: string;
@@ -101,13 +102,28 @@ export function PositionActions({
   displayName: string;
   canDelete: boolean;
   people: readonly { id: string; label: string }[];
-  holderIds: readonly string[];
+  holders: readonly { assignmentId: string; personId: string; name: string }[];
   full: boolean;
 }) {
   const t = useTranslations("teams");
   const tc = useTranslations("common");
+  const holderIds = holders.map((h) => h.personId);
   return (
     <div className="flex items-center gap-1">
+      {holders.length > 0 && (full || position.isLeadership) ? (
+        <HandOverDialog
+          positionId={position.id}
+          positionName={displayName}
+          holders={holders}
+          people={people}
+          trigger={(open) => (
+            <Button variant="soft" size="sm" onClick={open}>
+              <ArrowLeftRight aria-hidden className="size-4" />
+              {t("handOver")}
+            </Button>
+          )}
+        />
+      ) : null}
       {full ? null : (
         <AssignDialog
           positionId={position.id}

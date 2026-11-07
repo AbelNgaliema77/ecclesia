@@ -31,9 +31,7 @@ export default async function CountPage({ params }: PageProps) {
   });
   const editable = batch.status === "draft" && data.canWrite && !data.locked;
   const personName = (line: (typeof batch.lines)[number]) =>
-    line.personLastName
-      ? `${line.personPreferredName ?? line.personFirstName} ${line.personLastName}`
-      : null;
+    line.personLastName ? `${line.personFirstName} ${line.personLastName}` : null;
   const byFund = data.funds
     .map((fund) => ({
       fund,

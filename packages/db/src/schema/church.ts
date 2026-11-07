@@ -1,5 +1,5 @@
 import type { Grant } from "@ecclesia/domain/access";
-import { GENDERS, PERSON_STATUSES } from "@ecclesia/domain/people";
+import { EARLIEST_JOINED_YEAR, GENDERS } from "@ecclesia/domain/people";
 import { LOGO_TYPES, MAX_LOGO_BYTES } from "@ecclesia/domain/settings";
 import { sql } from "drizzle-orm";
 import {
@@ -25,7 +25,6 @@ import { user } from "./auth";
 import { bytea, churchId, id, timestamps } from "./columns";
 import { churches } from "./platform";
 
-export const personStatusEnum = pgEnum("person_status", PERSON_STATUSES);
 export const genderEnum = pgEnum("gender", GENDERS);
 
 export type LocalizedText = { en: string; fr: string };
@@ -57,17 +56,6 @@ export const campuses = pgTable(
   (t) => [unique().on(t.churchId, t.id)],
 );
 
-export const households = pgTable(
-  "households",
-  {
-    id: id(),
-    churchId: churchId(),
-    name: text().notNull(),
-    ...timestamps(),
-  },
-  (t) => [unique().on(t.churchId, t.id)],
-);
-
 export const people = pgTable(
   "people",
   {
@@ -75,46 +63,21 @@ export const people = pgTable(
     churchId: churchId(),
     firstName: text().notNull(),
     lastName: text().notNull(),
-    preferredName: text(),
     gender: genderEnum(),
     email: text(),
     phone: text(),
     dateOfBirth: date({ mode: "date" }),
-    status: personStatusEnum().notNull().default("visitor"),
-    firstVisitOn: date({ mode: "date" }),
-    householdId: uuid(),
-    notes: text(),
+    joinedYear: smallint(),
     deletedAt: timestamp({ withTimezone: true }),
     ...timestamps(),
   },
   (t) => [
     unique().on(t.churchId, t.id),
     index().on(t.churchId, t.lastName, t.firstName),
-    index().on(t.churchId, t.status),
-    foreignKey({
-      columns: [t.churchId, t.householdId],
-      foreignColumns: [households.churchId, households.id],
-    }).onDelete("no action"),
-  ],
-);
-
-export const personStatusHistory = pgTable(
-  "person_status_history",
-  {
-    id: id(),
-    churchId: churchId(),
-    personId: uuid().notNull(),
-    fromStatus: personStatusEnum(),
-    toStatus: personStatusEnum().notNull(),
-    changedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-    changedBy: text().references(() => user.id, { onDelete: "set null" }),
-  },
-  (t) => [
-    index().on(t.churchId, t.personId),
-    foreignKey({
-      columns: [t.churchId, t.personId],
-      foreignColumns: [people.churchId, people.id],
-    }).onDelete("cascade"),
+    check(
+      "people_joined_year_valid",
+      sql.raw(`joined_year IS NULL OR joined_year >= ${EARLIEST_JOINED_YEAR}`),
+    ),
   ],
 );
 
@@ -346,9 +309,7 @@ export const invitations = pgTable(
 export const CHURCH_SCOPED_TABLES = [
   "roles",
   "campuses",
-  "households",
   "people",
-  "person_status_history",
   "teams",
   "positions",
   "assignments",

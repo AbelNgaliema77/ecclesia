@@ -42,7 +42,6 @@ export const deductibleTotals = (tx: Tx, from: IsoDate, to: IsoDate) =>
       personId: people.id,
       firstName: people.firstName,
       lastName: people.lastName,
-      preferredName: people.preferredName,
       givingNumber: donorProfiles.givingNumber,
       totalCents: sql<number>`sum(${gifts.amountCents})::bigint`.mapWith(Number),
       giftCount: sql<number>`count(*)::int`,

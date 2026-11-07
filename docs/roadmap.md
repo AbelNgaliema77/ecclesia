@@ -5,7 +5,7 @@
 - [x] Monorepo, CI, Docker image, health check
 - [x] Database schema with row-level security and composite tenant keys
 - [x] Auth, onboarding, roles and scoped permissions
-- [x] People, status rules and history
+- [x] People as the workforce, with year joined and teams
 - [x] Teams and positions overview
 - [x] Attendance capture and corrections
 - [x] Dashboard with seasonal attendance trend

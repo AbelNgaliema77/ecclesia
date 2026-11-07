@@ -1,13 +1,14 @@
 "use server";
 
 import { people } from "@ecclesia/db/repositories";
-import { displayName, type PersonStatus } from "@ecclesia/domain/people";
+import type { LocalizedText } from "@ecclesia/db/schema";
+import { displayName } from "@ecclesia/domain/people";
 import { z } from "zod";
 import type { ActionState } from "@/lib/action-state";
 import { ensure, parseInput, runChurchAction } from "@/server/action";
 import { visibilityFor } from "../people/visibility";
 
-export type PersonHit = { id: string; name: string; status: PersonStatus };
+export type PersonHit = { id: string; name: string; teams: LocalizedText[] };
 
 const querySchema = z.string().trim().min(2).max(60);
 
@@ -18,6 +19,10 @@ export async function searchPeopleAction(query: string): Promise<ActionState<Per
     ensure(visibility !== null);
     if (!visibility) return [];
     const result = await people.listPeople(tx, visibility, { search: term, limit: 8, offset: 0 });
-    return result.rows.map((row) => ({ id: row.id, name: displayName(row), status: row.status }));
+    return result.rows.map((row) => ({
+      id: row.id,
+      name: displayName(row),
+      teams: row.serving.map((entry) => entry.teamName),
+    }));
   });
 }

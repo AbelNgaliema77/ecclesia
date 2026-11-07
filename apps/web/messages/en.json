@@ -111,9 +111,7 @@
     "lastMonth": "in {month}",
     "change": "{value, number, ::sign-always .0}% on the previous month",
     "noChange": "No earlier month to compare with",
-    "firstTimers": "First-time visitors",
-    "last30Days": "in the last 30 days",
-    "activePeople": "People in the directory",
+    "activePeople": "People serving or on record",
     "serving": "{count, plural, one {# serving in a team} other {# serving in teams}}",
     "trendTitle": "Attendance by month",
     "trendLead": "Average headcount per service, split by category. Shaded bands mark the church seasons.",
@@ -133,28 +131,29 @@
       "capture": "Capture headcount",
       "captureLead": "Count today’s service",
       "addPerson": "Add person",
-      "addPersonLead": "Register a visitor or member",
+      "addPersonLead": "Add someone to the workforce",
       "teams": "See teams",
       "teamsLead": "Positions and vacancies"
     },
     "perService": "per service",
     "yourTeams": "Your teams",
     "yourTeamsLead": "The teams you lead. You can update their people and positions.",
-    "teamSummary": "{members, plural, one {# person} other {# people}}{open, plural, =0 {} one { · # open spot} other { · # open spots}}"
+    "teamSummary": "{members, plural, one {# person} other {# people}}{open, plural, =0 {} one { · # open spot} other { · # open spots}}",
+    "joinedThisYear": "Joined this year",
+    "inYear": "in {year}"
   },
   "people": {
     "title": "People",
-    "lead": "Everyone in the church. Workers and leaders are tagged from the teams they serve in.",
+    "lead": "Everyone who serves. Each person shows the teams they belong to and when they joined the church.",
     "add": "Add person",
     "searchLabel": "Search people",
     "searchPlaceholder": "Name, email or phone",
     "columns": {
       "name": "Name",
-      "status": "Status",
       "phone": "Phone",
       "email": "Email",
-      "firstVisit": "First visit",
-      "teams": "Teams"
+      "teams": "Teams",
+      "joined": "Joined"
     },
     "count": "{count, plural, =0 {No people} one {# person} other {# people}}",
     "empty": "No one matches that search. Try a different name or clear the filters.",
@@ -165,33 +164,24 @@
     "newTitle": "Add a person",
     "editTitle": "Edit {name}",
     "back": "Back to people",
-    "statusHistory": "Status history",
     "fields": {
       "firstName": "First name",
       "lastName": "Last name",
-      "preferredName": "Preferred name",
       "gender": "Gender",
       "email": "Email",
       "phone": "Phone",
       "dateOfBirth": "Date of birth",
-      "status": "Status",
-      "firstVisitOn": "First visit",
-      "notes": "Notes"
+      "joinedYear": "Year joined",
+      "team": "Team"
     },
     "sections": {
       "identity": "Identity",
       "contact": "Contact",
-      "church": "Church life"
+      "church": "Church"
     },
     "save": "Save person",
     "saved": "Saved",
     "notSpecified": "Not specified",
-    "status": {
-      "visitor": "Visitor",
-      "regular": "Regular",
-      "member": "Member",
-      "inactive": "Inactive"
-    },
     "gender": {
       "male": "Male",
       "female": "Female"
@@ -199,12 +189,9 @@
     "filterLabel": "Show",
     "filter": {
       "everyone": "Everyone",
-      "workers": "Workers",
+      "serving": "In a team",
       "leaders": "Leaders",
-      "visitor": "Visitors",
-      "regular": "Regulars",
-      "member": "Members",
-      "inactive": "Inactive"
+      "unassigned": "Not in a team"
     },
     "serving": {
       "label": "Teams",
@@ -246,7 +233,13 @@
         }
       },
       "done": "{count, plural, one {# person imported} other {# people imported}}"
-    }
+    },
+    "chooseTeam": "Choose a team",
+    "noTeamYet": "No team yet",
+    "teamsTitle": "Teams",
+    "noTeams": "Not in a team yet.",
+    "teamsHint": "Add or move people between teams from the team’s page.",
+    "roleSince": "{role} since {date}"
   },
   "teams": {
     "title": "Teams",
@@ -294,13 +287,22 @@
     "assigned": "Person assigned",
     "end": "End",
     "endTitle": "End {name} as {position}?",
-    "endLead": "They stay in the team’s history.",
-    "endsOn": "Last day",
+    "endLead": "They drop off the team from that day and stay in its history.",
     "saveEnd": "End assignment",
     "ended": "Assignment ended",
     "since": "since {date}",
     "noPositions": "No positions yet. Add the first one.",
-    "capacity": "{count} of {max} filled"
+    "capacity": "{count} of {max} filled",
+    "stopsFrom": "Stops serving from",
+    "handOver": "Replace",
+    "handOverTitle": "Replace {position}",
+    "handOverLead": "{name} steps down and the new person takes over from the same day.",
+    "handOverLeadMany": "Choose who steps down and who takes over. The change happens on the same day.",
+    "steppingDown": "Stepping down",
+    "takingOver": "Taking over",
+    "handOverFrom": "From",
+    "saveHandOver": "Replace",
+    "handedOver": "Position handed over"
   },
   "attendance": {
     "title": "Attendance",
@@ -342,9 +344,6 @@
     "subscription": {
       "readOnly": "Ecclesia is read-only until the subscription is updated."
     },
-    "person": {
-      "invalidStatusTransition": "That status change isn’t allowed."
-    },
     "invalidTimeZone": "Choose a time zone from the list.",
     "invalidTime": "Enter a time like 09:30.",
     "duplicatePermission": "Each permission can only be set once.",
@@ -353,7 +352,8 @@
       "alreadyHeld": "This person already holds this position.",
       "positionFull": "This position is already full.",
       "endBeforeStart": "The last day can’t be before the start date.",
-      "alreadyEnded": "This assignment has already ended."
+      "alreadyEnded": "This assignment has already ended.",
+      "samePerson": "Choose someone else to take over."
     },
     "members": {
       "lastAdmin": "At least one person must be able to manage members. Give someone else that access first.",
@@ -372,11 +372,11 @@
       "hasHistory": "This position has assignment history, so it can’t be deleted."
     },
     "people": {
-      "deleteSelf": "You can’t delete your own profile. Ask another administrator."
+      "deleteSelf": "You can’t delete your own profile. Ask another administrator.",
+      "teamFull": "This team has no open member position. Add one on the team page."
     },
     "import": {
       "invalidGender": "Use Male or Female.",
-      "invalidStatus": "Use Visitor, Regular, Member or Inactive.",
       "invalidDate": "Use a date like 2024-03-09 or 09/03/2024.",
       "invalidEmail": "This isn’t a valid email address.",
       "unknownTeam": "No team with this name. Create it first or fix the spelling.",
@@ -441,7 +441,9 @@
         "nothingToIssue": "There are no deductible gifts to certify."
       }
     },
-    "invalidDate": "Enter a valid date."
+    "invalidDate": "Enter a valid date.",
+    "invalidYear": "Enter a year like 2018.",
+    "futureYear": "The year can’t be in the future."
   },
   "common": {
     "cancel": "Cancel",

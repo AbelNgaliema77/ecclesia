@@ -66,7 +66,7 @@ export default async function DonorsPage({ searchParams }: PageProps) {
               >
                 <span className="min-w-0 flex-1 basis-full sm:basis-0">
                   <span className="block font-semibold">
-                    {row.preferredName ?? row.firstName} {row.lastName}
+                    {row.firstName} {row.lastName}
                   </span>
                   <span className="block text-xs text-ink-faint">
                     {[

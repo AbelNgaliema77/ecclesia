@@ -22,14 +22,14 @@ export const loadDashboard = async () =>
     const now = new Date();
     const months = lastNMonthKeys(now, MONTHS);
     const since = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (MONTHS - 1), 1));
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 86_400_000);
+    const year = now.getUTCFullYear();
 
-    const [records, categories, recent, statusCounts, firstTimers, serving] = await Promise.all([
+    const [records, categories, recent, peopleTotal, joinedThisYear, serving] = await Promise.all([
       attendance.headcountRecordsSince(tx, since),
       attendance.listAttendanceCategories(tx),
       attendance.listRecentServices(tx, 6),
-      people.countPeopleByStatus(tx),
-      people.countFirstVisitsSince(tx, thirtyDaysAgo),
+      people.countPeople(tx),
+      people.countJoinedIn(tx, year),
       teams.countPeopleServing(tx),
     ]);
 
@@ -59,10 +59,9 @@ export const loadDashboard = async () =>
         latest && previous
           ? percentChange(previous.averagePerService, latest.averagePerService)
           : null,
-      firstTimers,
-      peopleTotal: statusCounts
-        .filter((s) => s.status !== "inactive")
-        .reduce((sum, s) => sum + s.total, 0),
+      year,
+      joinedThisYear,
+      peopleTotal,
       serving,
       recent,
     };

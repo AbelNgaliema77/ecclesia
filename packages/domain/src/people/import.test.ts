@@ -37,17 +37,17 @@ describe("normalizeImportDate", () => {
 describe("readImportTable", () => {
   it("reads values, aliases and issues per row", () => {
     const { candidates } = readImportTable([
-      ["First name", "Last name", "Sexe", "Statut", "Email", "Date of birth", "Team"],
-      ["Ama", "Mensah", "F", "Membre", "AMA@example.org", "12/04/1990", "Media"],
+      ["First name", "Last name", "Sexe", "Année d’arrivée", "Email", "Date of birth", "Team"],
+      ["Ama", "Mensah", "F", "2016", "AMA@example.org", "12/04/1990", "Media"],
       ["", "", "", "", "", "", ""],
-      ["Kofi", "", "x", "elder", "not-an-email", "soon", ""],
+      ["Kofi", "", "x", "3000", "not-an-email", "soon", ""],
     ]);
     expect(candidates).toHaveLength(2);
     const [ama, kofi] = candidates;
     expect(ama?.row).toBe(2);
     expect(ama?.person).toMatchObject({
       gender: "female",
-      status: "member",
+      joinedYear: 2016,
       email: "ama@example.org",
     });
     expect(ama?.team).toBe("Media");
@@ -57,8 +57,8 @@ describe("readImportTable", () => {
       "dateOfBirth:import.invalidDate",
       "email:import.invalidEmail",
       "gender:import.invalidGender",
+      "joinedYear:futureYear",
       "lastName:required",
-      "status:import.invalidStatus",
     ]);
   });
 

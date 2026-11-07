@@ -128,12 +128,14 @@ export default async function DashboardPage() {
             </div>
             <div className="glass rounded-card p-3 sm:p-5">
               <p className="text-xs font-medium text-hero-ink-soft sm:text-sm">
-                {t("firstTimers")}
+                {t("joinedThisYear")}
               </p>
               <p className="mt-3 font-display text-[1.75rem] leading-none font-bold sm:text-[2.75rem]">
-                {format.number(data.firstTimers)}
+                {format.number(data.joinedThisYear)}
               </p>
-              <p className="mt-2 hidden text-xs text-hero-ink-soft sm:block">{t("last30Days")}</p>
+              <p className="mt-2 hidden text-xs text-hero-ink-soft sm:block">
+                {t("inYear", { year: data.year })}
+              </p>
             </div>
             <div className="glass rounded-card p-3 sm:p-5">
               <p className="text-xs font-medium text-hero-ink-soft sm:text-sm">

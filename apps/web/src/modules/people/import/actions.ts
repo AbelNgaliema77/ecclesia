@@ -32,7 +32,6 @@ export async function commitImportAction(
       const inserted = await people.insertPeople(
         tx,
         plan.inserts.map((entry) => entry.person),
-        actor.userId,
       );
       const startsOn = new Date(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`);
       for (const [index, entry] of plan.inserts.entries()) {

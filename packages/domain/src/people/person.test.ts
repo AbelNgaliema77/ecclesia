@@ -1,24 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canTransition, displayName, personInputSchema, transitionStatus } from "./person";
-
-describe("person status", () => {
-  it("follows the membership path", () => {
-    expect(canTransition("visitor", "regular")).toBe(true);
-    expect(canTransition("regular", "member")).toBe(true);
-    expect(canTransition("member", "regular")).toBe(true);
-  });
-
-  it("does not send members back to visitor", () => {
-    const result = transitionStatus("member", "visitor");
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error.code).toBe("person.invalidStatusTransition");
-  });
-
-  it("allows anyone to become inactive and return", () => {
-    expect(canTransition("member", "inactive")).toBe(true);
-    expect(canTransition("inactive", "member")).toBe(true);
-  });
-});
+import { displayName, personInputSchema } from "./person";
 
 describe("personInputSchema", () => {
   it("normalises optional fields", () => {
@@ -27,13 +8,28 @@ describe("personInputSchema", () => {
       lastName: "Mbeki",
       email: "Grace@Example.com",
       phone: "+27 82 123 4567",
-      preferredName: "",
+      joinedYear: "",
     });
     expect(parsed.firstName).toBe("Grace");
     expect(parsed.email).toBe("grace@example.com");
     expect(parsed.phone).toBe("+27821234567");
-    expect(parsed.preferredName).toBeNull();
-    expect(parsed.status).toBe("visitor");
+    expect(parsed.joinedYear).toBeNull();
+  });
+
+  it("reads the year they joined", () => {
+    expect(
+      personInputSchema.parse({ firstName: "A", lastName: "B", joinedYear: "2014" }).joinedYear,
+    ).toBe(2014);
+    expect(personInputSchema.parse({ firstName: "A", lastName: "B" }).joinedYear).toBeNull();
+  });
+
+  it("rejects joined years in the future or out of range", () => {
+    const next = new Date().getUTCFullYear() + 1;
+    for (const joinedYear of [String(next), "1850", "20.5", "abc"]) {
+      expect(
+        personInputSchema.safeParse({ firstName: "A", lastName: "B", joinedYear }).success,
+      ).toBe(false);
+    }
   });
 
   it("rejects missing names and bad phone numbers", () => {
@@ -53,9 +49,7 @@ describe("personInputSchema", () => {
 });
 
 describe("displayName", () => {
-  it("prefers the preferred name", () => {
-    expect(displayName({ firstName: "Nomvula", lastName: "Dlamini", preferredName: "Vuvu" })).toBe(
-      "Vuvu Dlamini",
-    );
+  it("joins first and last name", () => {
+    expect(displayName({ firstName: "Nomvula", lastName: "Dlamini" })).toBe("Nomvula Dlamini");
   });
 });

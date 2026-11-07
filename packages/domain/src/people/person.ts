@@ -1,52 +1,18 @@
 import { z } from "zod";
-import { domainError, err, ok, type Result } from "../shared/result";
-
-export const PERSON_STATUSES = ["visitor", "regular", "member", "inactive"] as const;
-
-export type PersonStatus = (typeof PERSON_STATUSES)[number];
 
 export const GENDERS = ["male", "female"] as const;
 
 export type Gender = (typeof GENDERS)[number];
 
-const ALLOWED_TRANSITIONS: Record<PersonStatus, readonly PersonStatus[]> = {
-  visitor: ["regular", "member", "inactive"],
-  regular: ["member", "inactive"],
-  member: ["regular", "inactive"],
-  inactive: ["regular", "member"],
-};
-
-export const PEOPLE_FILTERS = ["workers", "leaders", ...PERSON_STATUSES] as const;
+export const PEOPLE_FILTERS = ["serving", "leaders", "unassigned"] as const;
 
 export type PeopleFilter = (typeof PEOPLE_FILTERS)[number];
 
-export const canTransition = (from: PersonStatus, to: PersonStatus): boolean =>
-  from === to || ALLOWED_TRANSITIONS[from].includes(to);
-
-export const transitionStatus = (from: PersonStatus, to: PersonStatus): Result<PersonStatus> =>
-  canTransition(from, to)
-    ? ok(to)
-    : err(
-        domainError("person.invalidStatusTransition", `Cannot move from ${from} to ${to}`, {
-          from,
-          to,
-        }),
-      );
-
-const optionalText = (max: number) =>
-  z
-    .string()
-    .trim()
-    .max(max)
-    .transform((value) => (value === "" ? null : value))
-    .nullable()
-    .optional()
-    .transform((value) => value ?? null);
+export const EARLIEST_JOINED_YEAR = 1900;
 
 export const personInputSchema = z.object({
   firstName: z.string().trim().min(1, "required").max(80),
   lastName: z.string().trim().min(1, "required").max(80),
-  preferredName: optionalText(80),
   gender: z
     .enum(GENDERS)
     .nullable()
@@ -74,28 +40,22 @@ export const personInputSchema = z.object({
     .nullable()
     .optional()
     .transform((v) => v ?? null),
-  status: z.enum(PERSON_STATUSES).default("visitor"),
-  firstVisitOn: z.coerce
-    .date()
-    .nullable()
-    .optional()
-    .transform((v) => v ?? null),
-  householdId: z
-    .uuid()
-    .nullable()
-    .optional()
-    .transform((v) => v ?? null),
-  notes: optionalText(2000),
+  joinedYear: z.preprocess(
+    (value) => (value === "" || value === undefined ? null : value),
+    z.coerce
+      .number()
+      .int("invalidYear")
+      .min(EARLIEST_JOINED_YEAR, "invalidYear")
+      .refine((year) => year <= new Date().getUTCFullYear(), "futureYear")
+      .nullable(),
+  ),
 });
 
 export type PersonInput = z.input<typeof personInputSchema>;
 export type ValidPerson = z.output<typeof personInputSchema>;
 
-export const displayName = (person: {
-  firstName: string;
-  lastName: string;
-  preferredName?: string | null;
-}): string => `${person.preferredName ?? person.firstName} ${person.lastName}`;
+export const displayName = (person: { firstName: string; lastName: string }): string =>
+  `${person.firstName} ${person.lastName}`;
 
 export const initials = (person: { firstName: string; lastName: string }): string =>
   `${person.firstName.charAt(0)}${person.lastName.charAt(0)}`.toUpperCase();

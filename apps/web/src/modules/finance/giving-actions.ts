@@ -146,7 +146,7 @@ export async function searchGiversAction(query: string): Promise<PersonOption[]>
       const byNumber = numbers.find((n) => n.givingNumber?.toUpperCase() === term.toUpperCase());
       const rows = found.rows.map((person) => ({
         id: person.id,
-        name: `${person.preferredName ?? person.firstName} ${person.lastName}`,
+        name: `${person.firstName} ${person.lastName}`,
         givingNumber: numbers.find((n) => n.personId === person.id)?.givingNumber ?? null,
       }));
       if (byNumber && !rows.some((row) => row.id === byNumber.personId)) {
@@ -154,7 +154,7 @@ export async function searchGiversAction(query: string): Promise<PersonOption[]>
         if (person) {
           rows.unshift({
             id: person.id,
-            name: `${person.preferredName ?? person.firstName} ${person.lastName}`,
+            name: `${person.firstName} ${person.lastName}`,
             givingNumber: byNumber.givingNumber,
           });
         }

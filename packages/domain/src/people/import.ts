@@ -1,16 +1,13 @@
-import { type Gender, type PersonStatus, personInputSchema, type ValidPerson } from "./person";
+import { type Gender, personInputSchema, type ValidPerson } from "./person";
 
 export const IMPORT_COLUMNS = [
   "firstName",
   "lastName",
-  "preferredName",
   "gender",
   "email",
   "phone",
   "dateOfBirth",
-  "status",
-  "firstVisitOn",
-  "notes",
+  "joinedYear",
   "team",
 ] as const;
 
@@ -33,14 +30,11 @@ const fold = (value: string) =>
 const HEADER_ALIASES: Record<ImportColumn, readonly string[]> = {
   firstName: ["firstname", "first", "givenname", "forename", "prenom", "prenoms"],
   lastName: ["lastname", "last", "surname", "familyname", "nom", "nomdefamille"],
-  preferredName: ["preferredname", "nickname", "knownas", "nomdusage", "surnom"],
   gender: ["gender", "sex", "sexe", "genre"],
   email: ["email", "emailaddress", "mail", "courriel", "adresseemail", "adressecourriel"],
   phone: ["phone", "phonenumber", "mobile", "cell", "cellphone", "telephone", "tel", "portable"],
   dateOfBirth: ["dateofbirth", "birthdate", "birthday", "dob", "datedenaissance", "naissance"],
-  status: ["status", "statut"],
-  firstVisitOn: ["firstvisit", "firstvisiton", "firstvisitdate", "premierevisite"],
-  notes: ["notes", "note", "comments", "comment", "commentaires", "remarques"],
+  joinedYear: ["joined", "yearjoined", "joinedin", "since", "anneedarrivee", "arrivee", "depuis"],
   team: ["team", "equipe", "ministry", "ministere", "departement", "department"],
 };
 
@@ -56,19 +50,6 @@ const GENDER_ALIASES: Record<string, Gender> = {
   woman: "female",
   femme: "female",
   feminin: "female",
-};
-
-const STATUS_ALIASES: Record<string, PersonStatus> = {
-  visitor: "visitor",
-  visiteur: "visitor",
-  visiteuse: "visitor",
-  regular: "regular",
-  habitue: "regular",
-  habituee: "regular",
-  member: "member",
-  membre: "member",
-  inactive: "inactive",
-  inactif: "inactive",
 };
 
 export type HeaderMapping = {
@@ -112,7 +93,13 @@ export const normalizeImportDate = (value: string): string | null => {
     : result;
 };
 
-const SCHEMA_CODES = new Set(["required", "invalidPhone", "futureDate"]);
+const SCHEMA_CODES = new Set([
+  "required",
+  "invalidPhone",
+  "futureDate",
+  "invalidYear",
+  "futureYear",
+]);
 
 const issueCode = (column: ImportColumn | null, message: string) =>
   SCHEMA_CODES.has(message) ? message : column === "email" ? "import.invalidEmail" : "generic";
@@ -146,26 +133,17 @@ export const readImportRow = (
   const gender = values.gender === "" ? null : (GENDER_ALIASES[fold(values.gender)] ?? undefined);
   if (gender === undefined) issues.push({ column: "gender", code: "import.invalidGender" });
 
-  const status =
-    values.status === "" ? "visitor" : (STATUS_ALIASES[fold(values.status)] ?? undefined);
-  if (status === undefined) issues.push({ column: "status", code: "import.invalidStatus" });
-
   const dateOfBirth = normalizeImportDate(values.dateOfBirth);
   if (dateOfBirth === null) issues.push({ column: "dateOfBirth", code: "import.invalidDate" });
-  const firstVisitOn = normalizeImportDate(values.firstVisitOn);
-  if (firstVisitOn === null) issues.push({ column: "firstVisitOn", code: "import.invalidDate" });
 
   const parsed = personInputSchema.safeParse({
     firstName: values.firstName,
     lastName: values.lastName,
-    preferredName: values.preferredName,
     gender: gender ?? null,
     email: values.email,
     phone: values.phone,
     dateOfBirth: dateOfBirth || null,
-    status: status ?? "visitor",
-    firstVisitOn: firstVisitOn || null,
-    notes: values.notes,
+    joinedYear: values.joinedYear,
   });
   if (!parsed.success) {
     for (const issue of parsed.error.issues) {

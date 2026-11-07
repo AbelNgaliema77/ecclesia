@@ -6,14 +6,14 @@ Church management for people, teams, attendance and stewardship. Multi-church, E
 
 - Sign up, sign in, and church onboarding with default roles, attendance categories and service times
 - Three built-in roles: Pastor and Church Admin with full access, Team Leader who sees everyone and manages their own teams
-- People directory for the whole church with Visitor, Regular, Member and Inactive statuses, automatic Worker and Leader tags from team assignments, filters, deletion and status history
+- People is the workforce: name, contact, gender, birthday, the year they joined and the teams they serve in, with Leader tags from team assignments, filters and deletion
 - Excel and CSV import with a row-by-row preview, duplicate skipping and optional team placement
-- Teams, positions and assignments, managed in the app, with team leaders managing their own teams
+- Teams, positions and assignments, managed in the app, with team leaders managing their own teams and a one-step Replace to hand a position to someone new
 - Members and invitations sent by email, custom roles with a permission matrix
 - Password reset by email
 - Church settings for details, branding (logo and colour theme), service times and attendance categories
 - Attendance capture per service and category, built for phones, kept on the phone when signal drops and synced when it returns
-- Dashboard with average attendance, first-time visitors, people serving, and a monthly trend split by category with church seasons marked
+- Dashboard with average attendance, people who joined this year, people serving, and a monthly trend split by category with church seasons marked
 - Subscription states (trial, active, past due, read-only, locked) enforced across the app
 - Finance: funds, giving with void-only corrections, two-person cash counts, bank statement import with giving-number matching, donors and Section 18A certificates, payment requests with photo and PDF receipts, approval limits and separation of duties, budgets, income and expense statements, CSV export and month-end close
 - Two-step verification (authenticator app and backup codes), required for finance access by default

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { endAssignmentOn } from "./assignment";
+import { handOver, stopServing } from "./assignment";
 import { positionInputSchema, teamInputSchema } from "./team-input";
 
 describe("teamInputSchema", () => {
@@ -23,21 +23,51 @@ describe("positionInputSchema", () => {
   });
 });
 
-describe("endAssignmentOn", () => {
+describe("stopServing", () => {
   const startsOn = new Date("2026-01-01T00:00:00Z");
 
-  it("ends an active assignment", () => {
-    expect(endAssignmentOn({ startsOn, endsOn: null }, new Date("2026-06-01T00:00:00Z")).ok).toBe(
-      true,
-    );
+  it("ends the day before they stop, so they drop off at once", () => {
+    const result = stopServing({ startsOn, endsOn: null }, new Date("2026-06-01T00:00:00Z"));
+    expect(result).toEqual({
+      ok: true,
+      value: { kind: "end", endsOn: new Date("2026-05-31T00:00:00Z") },
+    });
   });
 
-  it("refuses to end before it started or twice", () => {
-    expect(endAssignmentOn({ startsOn, endsOn: null }, new Date("2025-12-01T00:00:00Z")).ok).toBe(
+  it("removes an assignment that has not really started", () => {
+    expect(stopServing({ startsOn, endsOn: null }, startsOn)).toEqual({
+      ok: true,
+      value: { kind: "remove" },
+    });
+  });
+
+  it("refuses to stop someone who already stopped", () => {
+    expect(stopServing({ startsOn, endsOn: startsOn }, new Date("2026-06-01T00:00:00Z")).ok).toBe(
       false,
     );
-    expect(
-      endAssignmentOn({ startsOn, endsOn: startsOn }, new Date("2026-06-01T00:00:00Z")).ok,
-    ).toBe(false);
+  });
+});
+
+describe("handOver", () => {
+  const lead = {
+    personId: "old",
+    positionId: "lead",
+    startsOn: new Date("2025-01-01T00:00:00Z"),
+    endsOn: null,
+  };
+  const capacity = { positionId: "lead", maxHolders: 1 };
+  const today = new Date("2026-11-07T00:00:00Z");
+
+  it("hands a full position to someone new on the same day", () => {
+    const result = handOver(lead, "new", today, [lead], capacity);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.stop).toEqual({ kind: "end", endsOn: new Date("2026-11-06T00:00:00Z") });
+    expect(result.value.incoming).toMatchObject({ personId: "new", startsOn: today });
+  });
+
+  it("refuses to hand over to the same person", () => {
+    const result = handOver(lead, "old", today, [lead], capacity);
+    expect(!result.ok && result.error.code).toBe("assignment.samePerson");
   });
 });

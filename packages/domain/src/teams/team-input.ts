@@ -36,7 +36,15 @@ export const assignmentInputSchema = z.object({
   startsOn: z.iso.date().transform((value) => new Date(`${value}T00:00:00Z`)),
 });
 
+const isoDay = z.iso.date().transform((value) => new Date(`${value}T00:00:00Z`));
+
 export const endAssignmentInputSchema = z.object({
   assignmentId: z.uuid(),
-  endsOn: z.iso.date().transform((value) => new Date(`${value}T00:00:00Z`)),
+  from: isoDay,
+});
+
+export const handOverInputSchema = z.object({
+  assignmentId: z.uuid(),
+  personId: z.uuid(),
+  from: isoDay,
 });

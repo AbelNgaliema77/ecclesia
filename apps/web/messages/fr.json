@@ -111,9 +111,7 @@
     "lastMonth": "en {month}",
     "change": "{value, number, ::sign-always .0} % par rapport au mois précédent",
     "noChange": "Aucun mois précédent pour comparer",
-    "firstTimers": "Nouveaux visiteurs",
-    "last30Days": "ces 30 derniers jours",
-    "activePeople": "Personnes dans l'annuaire",
+    "activePeople": "Personnes enregistrées",
     "serving": "{count, plural, one {# sert dans une équipe} other {# servent dans des équipes}}",
     "trendTitle": "Présences par mois",
     "trendLead": "Moyenne par culte, répartie par catégorie. Les bandes ombrées indiquent les temps liturgiques.",
@@ -133,28 +131,29 @@
       "capture": "Saisir un comptage",
       "captureLead": "Compter le culte du jour",
       "addPerson": "Ajouter une personne",
-      "addPersonLead": "Enregistrer un visiteur ou un membre",
+      "addPersonLead": "Ajouter quelqu’un aux ouvriers",
       "teams": "Voir les équipes",
       "teamsLead": "Postes et postes vacants"
     },
     "perService": "par culte",
     "yourTeams": "Vos équipes",
     "yourTeamsLead": "Les équipes que vous dirigez. Vous pouvez gérer leurs membres et leurs postes.",
-    "teamSummary": "{members, plural, one {# personne} other {# personnes}}{open, plural, =0 {} one { · # poste libre} other { · # postes libres}}"
+    "teamSummary": "{members, plural, one {# personne} other {# personnes}}{open, plural, =0 {} one { · # poste libre} other { · # postes libres}}",
+    "joinedThisYear": "Arrivés cette année",
+    "inYear": "en {year}"
   },
   "people": {
     "title": "Personnes",
-    "lead": "Toute l’église. Les ouvriers et responsables sont identifiés d’après les équipes où ils servent.",
+    "lead": "Tous ceux qui servent. Chaque personne affiche ses équipes et l’année de son arrivée à l’église.",
     "add": "Ajouter une personne",
     "searchLabel": "Rechercher des personnes",
     "searchPlaceholder": "Nom, e-mail ou téléphone",
     "columns": {
       "name": "Nom",
-      "status": "Statut",
       "phone": "Téléphone",
       "email": "E-mail",
-      "firstVisit": "Première visite",
-      "teams": "Équipes"
+      "teams": "Équipes",
+      "joined": "Arrivée"
     },
     "count": "{count, plural, =0 {Aucune personne} one {# personne} other {# personnes}}",
     "empty": "Personne ne correspond à cette recherche. Essayez un autre nom ou effacez les filtres.",
@@ -165,33 +164,24 @@
     "newTitle": "Ajouter une personne",
     "editTitle": "Modifier {name}",
     "back": "Retour aux personnes",
-    "statusHistory": "Historique du statut",
     "fields": {
       "firstName": "Prénom",
       "lastName": "Nom",
-      "preferredName": "Nom d'usage",
       "gender": "Sexe",
       "email": "E-mail",
       "phone": "Téléphone",
       "dateOfBirth": "Date de naissance",
-      "status": "Statut",
-      "firstVisitOn": "Première visite",
-      "notes": "Notes"
+      "joinedYear": "Année d’arrivée",
+      "team": "Équipe"
     },
     "sections": {
       "identity": "Identité",
       "contact": "Coordonnées",
-      "church": "Vie d'église"
+      "church": "Église"
     },
     "save": "Enregistrer",
     "saved": "Enregistré",
     "notSpecified": "Non précisé",
-    "status": {
-      "visitor": "Visiteur",
-      "regular": "Habitué",
-      "member": "Membre",
-      "inactive": "Inactif"
-    },
     "gender": {
       "male": "Homme",
       "female": "Femme"
@@ -199,12 +189,9 @@
     "filterLabel": "Afficher",
     "filter": {
       "everyone": "Tout le monde",
-      "workers": "Ouvriers",
+      "serving": "Dans une équipe",
       "leaders": "Responsables",
-      "visitor": "Visiteurs",
-      "regular": "Habitués",
-      "member": "Membres",
-      "inactive": "Inactifs"
+      "unassigned": "Sans équipe"
     },
     "serving": {
       "label": "Équipes",
@@ -246,7 +233,13 @@
         }
       },
       "done": "{count, plural, one {# personne importée} other {# personnes importées}}"
-    }
+    },
+    "chooseTeam": "Choisissez une équipe",
+    "noTeamYet": "Pas encore d’équipe",
+    "teamsTitle": "Équipes",
+    "noTeams": "Pas encore dans une équipe.",
+    "teamsHint": "Ajoutez ou déplacez des personnes depuis la page de l’équipe.",
+    "roleSince": "{role} depuis le {date}"
   },
   "teams": {
     "title": "Équipes",
@@ -294,13 +287,22 @@
     "assigned": "Personne affectée",
     "end": "Terminer",
     "endTitle": "Mettre fin au poste de {name} comme {position} ?",
-    "endLead": "Cette personne reste dans l’historique de l’équipe.",
-    "endsOn": "Dernier jour",
+    "endLead": "Cette personne quitte l’équipe à partir de ce jour et reste dans son historique.",
     "saveEnd": "Mettre fin",
     "ended": "Affectation terminée",
     "since": "depuis le {date}",
     "noPositions": "Aucun poste pour l’instant. Ajoutez le premier.",
-    "capacity": "{count} sur {max} occupés"
+    "capacity": "{count} sur {max} occupés",
+    "stopsFrom": "Arrête de servir à partir du",
+    "handOver": "Remplacer",
+    "handOverTitle": "Remplacer : {position}",
+    "handOverLead": "{name} se retire et la nouvelle personne prend le relais le même jour.",
+    "handOverLeadMany": "Choisissez qui se retire et qui prend le relais. Le changement se fait le même jour.",
+    "steppingDown": "Se retire",
+    "takingOver": "Prend le relais",
+    "handOverFrom": "À partir du",
+    "saveHandOver": "Remplacer",
+    "handedOver": "Poste transmis"
   },
   "attendance": {
     "title": "Présences",
@@ -342,9 +344,6 @@
     "subscription": {
       "readOnly": "Ecclesia est en lecture seule jusqu'à la mise à jour de l'abonnement."
     },
-    "person": {
-      "invalidStatusTransition": "Ce changement de statut n’est pas autorisé."
-    },
     "invalidTimeZone": "Choisissez un fuseau horaire dans la liste.",
     "invalidTime": "Saisissez une heure comme 09:30.",
     "duplicatePermission": "Chaque autorisation ne peut être définie qu’une fois.",
@@ -353,7 +352,8 @@
       "alreadyHeld": "Cette personne occupe déjà ce poste.",
       "positionFull": "Ce poste est déjà complet.",
       "endBeforeStart": "Le dernier jour ne peut pas précéder la date de début.",
-      "alreadyEnded": "Cette affectation est déjà terminée."
+      "alreadyEnded": "Cette affectation est déjà terminée.",
+      "samePerson": "Choisissez quelqu’un d’autre pour prendre le relais."
     },
     "members": {
       "lastAdmin": "Au moins une personne doit pouvoir gérer les membres. Donnez d’abord cet accès à quelqu’un d’autre.",
@@ -372,11 +372,11 @@
       "hasHistory": "Ce poste a un historique d’affectations, il ne peut donc pas être supprimé."
     },
     "people": {
-      "deleteSelf": "Vous ne pouvez pas supprimer votre propre profil. Demandez à un autre administrateur."
+      "deleteSelf": "Vous ne pouvez pas supprimer votre propre profil. Demandez à un autre administrateur.",
+      "teamFull": "Cette équipe n’a aucun poste de membre libre. Ajoutez-en un sur la page de l’équipe."
     },
     "import": {
       "invalidGender": "Indiquez Homme ou Femme.",
-      "invalidStatus": "Indiquez Visiteur, Habitué, Membre ou Inactif.",
       "invalidDate": "Indiquez une date comme 09/03/2024 ou 2024-03-09.",
       "invalidEmail": "Cette adresse e-mail n’est pas valide.",
       "unknownTeam": "Aucune équipe porte ce nom. Créez-la d’abord ou corrigez l’orthographe.",
@@ -441,7 +441,9 @@
         "nothingToIssue": "Aucun don déductible à certifier."
       }
     },
-    "invalidDate": "Saisissez une date valide."
+    "invalidDate": "Saisissez une date valide.",
+    "invalidYear": "Saisissez une année comme 2018.",
+    "futureYear": "L’année ne peut pas être dans le futur."
   },
   "common": {
     "cancel": "Annuler",

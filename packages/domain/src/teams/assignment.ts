@@ -59,14 +59,43 @@ export const validateAssignment = (
   return ok(candidate);
 };
 
-export const endAssignmentOn = (
+const DAY_MS = 86_400_000;
+
+export type StopServing =
+  | { readonly kind: "end"; readonly endsOn: Date }
+  | { readonly kind: "remove" };
+
+export const stopServing = (
   assignment: { readonly startsOn: Date; readonly endsOn: Date | null },
-  endsOn: Date,
-): Result<Date> => {
-  if (assignment.endsOn !== null)
+  from: Date,
+): Result<StopServing> => {
+  if (assignment.endsOn !== null && assignment.endsOn.getTime() < from.getTime()) {
     return err(domainError("assignment.alreadyEnded", "Already ended"));
-  if (endsOn.getTime() < assignment.startsOn.getTime()) {
-    return err(domainError("assignment.endBeforeStart", "End date is before start date"));
   }
-  return ok(endsOn);
+  if (from.getTime() <= assignment.startsOn.getTime()) return ok({ kind: "remove" });
+  return ok({ kind: "end", endsOn: new Date(from.getTime() - DAY_MS) });
+};
+
+export const handOver = (
+  outgoing: AssignmentPeriod,
+  incomingPersonId: string,
+  from: Date,
+  existing: readonly AssignmentPeriod[],
+  capacity: PositionCapacity,
+): Result<{ readonly stop: StopServing; readonly incoming: AssignmentPeriod }> => {
+  if (outgoing.personId === incomingPersonId) {
+    return err(domainError("assignment.samePerson", "Choose someone else to take over"));
+  }
+  const stop = stopServing(outgoing, from);
+  if (!stop.ok) return stop;
+  const remaining = existing.flatMap((period) => {
+    if (period !== outgoing) return [period];
+    return stop.value.kind === "remove" ? [] : [{ ...period, endsOn: stop.value.endsOn }];
+  });
+  const incoming = validateAssignment(
+    { personId: incomingPersonId, positionId: outgoing.positionId, startsOn: from, endsOn: null },
+    remaining,
+    capacity,
+  );
+  return incoming.ok ? ok({ stop: stop.value, incoming: incoming.value }) : incoming;
 };

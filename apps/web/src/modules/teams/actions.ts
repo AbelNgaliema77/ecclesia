@@ -1,12 +1,16 @@
 "use server";
 
+import type { Tx } from "@ecclesia/db";
 import { audit, people, teams } from "@ecclesia/db/repositories";
 import { type Actor, broadestScope, can } from "@ecclesia/domain/access";
 import {
   assignmentInputSchema,
   endAssignmentInputSchema,
-  endAssignmentOn,
+  handOver,
+  handOverInputSchema,
   positionInputSchema,
+  type StopServing,
+  stopServing,
   teamInputSchema,
   validateAssignment,
 } from "@ecclesia/domain/teams";
@@ -33,7 +37,13 @@ const canManageTeam = (actor: Actor, teamId: string) =>
 
 const refresh = (teamId?: string) => {
   revalidatePath("/teams");
+  revalidatePath("/people", "layout");
   if (teamId) revalidatePath(`/teams/${teamId}`);
+};
+
+const applyStop = async (tx: Tx, assignmentId: string, stop: StopServing) => {
+  if (stop.kind === "remove") await teams.deleteAssignment(tx, assignmentId);
+  else await teams.setAssignmentEnd(tx, assignmentId, stop.endsOn);
 };
 
 export async function saveTeamAction(
@@ -236,15 +246,64 @@ export async function endAssignmentAction(
       if (!assignment) return null;
       teamId = assignment.teamId;
       ensure(canManageTeam(actor, assignment.teamId));
-      const endsOn = unwrap(endAssignmentOn(assignment, input.endsOn));
-      await teams.setAssignmentEnd(tx, assignment.id, endsOn);
+      const stop = unwrap(stopServing(assignment, input.from));
+      await applyStop(tx, assignment.id, stop);
       await audit.recordAudit(tx, {
         actorUserId: actor.userId,
         action: "assignment.ended",
         entityType: "assignment",
         entityId: assignment.id,
         before: assignment,
-        after: { endsOn },
+        after: stop,
+      });
+      return null;
+    },
+  );
+  if (result.status === "success") refresh(teamId);
+  return result;
+}
+
+export async function handOverAction(
+  _previous: ActionState<null>,
+  formData: FormData,
+): Promise<ActionState<null>> {
+  let teamId = "";
+  const result = await runChurchAction(
+    { permission: "teams.write", write: true },
+    async ({ tx, actor }) => {
+      const input = parseInput(handOverInputSchema, formToObject(formData));
+      const assignment = await teams.getAssignmentWithTeam(tx, input.assignmentId);
+      ensure(assignment !== null, "notFound");
+      if (!assignment) return null;
+      teamId = assignment.teamId;
+      ensure(canManageTeam(actor, assignment.teamId));
+      const position = await teams.getPosition(tx, assignment.positionId);
+      ensure(position !== null, "notFound");
+      if (!position) return null;
+      ensure((await people.getPerson(tx, input.personId)) !== null, "notFound");
+      const periods = await teams.listAssignmentPeriods(tx, position.id);
+      const outgoing = periods.find(
+        (period) =>
+          period.personId === assignment.personId &&
+          period.startsOn.getTime() === assignment.startsOn.getTime(),
+      );
+      ensure(outgoing !== undefined, "notFound");
+      if (!outgoing) return null;
+      const plan = unwrap(
+        handOver(outgoing, input.personId, input.from, periods, {
+          positionId: position.id,
+          maxHolders: position.maxHolders,
+        }),
+      );
+      await applyStop(tx, assignment.id, plan.stop);
+      const created = await teams.insertAssignment(tx, plan.incoming);
+      await audit.recordAudit(tx, {
+        actorUserId: actor.userId,
+        action: "assignment.handedOver",
+        entityType: "assignment",
+        entityId: created.id,
+        before: assignment,
+        after: created,
       });
       return null;
     },

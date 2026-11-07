@@ -267,6 +267,41 @@ export const setAssignmentEnd = async (tx: Tx, id: string, endsOn: Date) => {
   return row ?? null;
 };
 
+export const deleteAssignment = async (tx: Tx, id: string) => {
+  const [row] = await tx.delete(assignments).where(eq(assignments.id, id)).returning();
+  return row ?? null;
+};
+
+export type PersonAssignment = {
+  readonly assignmentId: string;
+  readonly teamId: string;
+  readonly teamName: LocalizedText;
+  readonly positionName: LocalizedText;
+  readonly isLeadership: boolean;
+  readonly startsOn: Date;
+};
+
+export const activeAssignmentsFor = async (tx: Tx, personId: string): Promise<PersonAssignment[]> =>
+  tx
+    .select({
+      assignmentId: assignments.id,
+      teamId: teams.id,
+      teamName: teams.name,
+      positionName: positions.name,
+      isLeadership: positions.isLeadership,
+      startsOn: assignments.startsOn,
+    })
+    .from(assignments)
+    .innerJoin(positions, eq(positions.id, assignments.positionId))
+    .innerJoin(teams, eq(teams.id, positions.teamId))
+    .where(
+      and(
+        eq(assignments.personId, personId),
+        or(isNull(assignments.endsOn), sql`${assignments.endsOn} >= current_date`),
+      ),
+    )
+    .orderBy(sql`${teams.name}->>'en'`);
+
 export type ImportTarget = {
   readonly teamId: string;
   readonly name: LocalizedText;
