@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
@@ -8,6 +9,7 @@ import { Field, Input } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import { authClient } from "@/lib/auth-client";
 import { safeNext } from "@/lib/safe-next";
+import { useHydrated } from "@/lib/use-hydrated";
 
 export function SignInForm() {
   const t = useTranslations("auth");
@@ -15,6 +17,7 @@ export function SignInForm() {
   const params = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const hydrated = useHydrated();
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -27,7 +30,13 @@ export function SignInForm() {
     });
     if (signInError) {
       setPending(false);
-      setError(signInError.status === 401 ? t("invalidCredentials") : t("signInUnavailable"));
+      setError(
+        signInError.status === 401
+          ? t("invalidCredentials")
+          : signInError.status === 429
+            ? t("tooManyAttempts")
+            : t("signInUnavailable"),
+      );
       return;
     }
     router.replace(safeNext(params.get("next") ?? undefined) as "/");
@@ -49,7 +58,13 @@ export function SignInForm() {
           required
         />
       </Field>
-      <Button type="submit" size="lg" disabled={pending} className="mt-2">
+      <Link
+        href="/forgot-password"
+        className="-mt-2 self-end text-sm font-semibold text-accent underline-offset-4 hover:underline"
+      >
+        {t("forgotLink")}
+      </Link>
+      <Button type="submit" size="lg" disabled={pending || !hydrated} className="mt-2">
         {t("signIn")}
       </Button>
     </form>

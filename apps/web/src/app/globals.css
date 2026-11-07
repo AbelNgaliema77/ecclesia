@@ -123,6 +123,190 @@
   }
 }
 
+/* Church brand themes. Each pair is checked for WCAG AA contrast in light and dark. */
+[data-brand="ocean"] {
+  --brand: #1d5fb8;
+  --brand-hover: #174d96;
+  --brand-ink: #ffffff;
+  --brand-soft: #e4eefb;
+  --brand-soft-ink: #174d96;
+  --accent: #1d66c4;
+  --hero-from: #0f2f5c;
+  --hero-to: #174a8a;
+  --hero-ink: #f1f6fd;
+  --hero-ink-soft: #b3cdf0;
+}
+.dark [data-brand="ocean"] {
+  --brand: #4c8fe6;
+  --brand-hover: #66a2ee;
+  --brand-ink: #03101f;
+  --brand-soft: #0f1d30;
+  --brand-soft-ink: #8fbcf5;
+  --accent: #86b6f3;
+  --hero-from: #0f2a4d;
+  --hero-to: #0b1c33;
+  --hero-ink: #eef5fd;
+  --hero-ink-soft: #9ebfe8;
+}
+[data-brand="royal"] {
+  --brand: #5b3fb5;
+  --brand-hover: #4a3296;
+  --brand-ink: #ffffff;
+  --brand-soft: #eeeafb;
+  --brand-soft-ink: #4a3296;
+  --accent: #6247c4;
+  --hero-from: #2a1c5c;
+  --hero-to: #3f2b8a;
+  --hero-ink: #f5f2fd;
+  --hero-ink-soft: #c9bdf0;
+}
+.dark [data-brand="royal"] {
+  --brand: #9a82f0;
+  --brand-hover: #ab97f4;
+  --brand-ink: #120a2b;
+  --brand-soft: #1d1636;
+  --brand-soft-ink: #c2b3f7;
+  --accent: #b9a7f6;
+  --hero-from: #2a1d52;
+  --hero-to: #1a1235;
+  --hero-ink: #f3f0fd;
+  --hero-ink-soft: #b7a8e8;
+}
+[data-brand="crimson"] {
+  --brand: #a8323e;
+  --brand-hover: #8c2833;
+  --brand-ink: #ffffff;
+  --brand-soft: #fbe8ea;
+  --brand-soft-ink: #8c2833;
+  --accent: #b23744;
+  --hero-from: #4f121a;
+  --hero-to: #7a1f29;
+  --hero-ink: #fdf1f2;
+  --hero-ink-soft: #f0bcc2;
+}
+.dark [data-brand="crimson"] {
+  --brand: #e5707b;
+  --brand-hover: #ec8790;
+  --brand-ink: #24070b;
+  --brand-soft: #2e1316;
+  --brand-soft-ink: #f3a8af;
+  --accent: #f09aa3;
+  --hero-from: #4a141b;
+  --hero-to: #2e0c11;
+  --hero-ink: #fdf0f1;
+  --hero-ink-soft: #e6a9b0;
+}
+[data-brand="teal"] {
+  --brand: #0f6f78;
+  --brand-hover: #0b5a62;
+  --brand-ink: #ffffff;
+  --brand-soft: #e0f4f5;
+  --brand-soft-ink: #0b5a62;
+  --accent: #0f7c86;
+  --hero-from: #083a40;
+  --hero-to: #0d5961;
+  --hero-ink: #effafb;
+  --hero-ink-soft: #a6dbe0;
+}
+.dark [data-brand="teal"] {
+  --brand: #2bb3bf;
+  --brand-hover: #3fc4cf;
+  --brand-ink: #031416;
+  --brand-soft: #0d2629;
+  --brand-soft-ink: #7ad9e0;
+  --accent: #6dd3db;
+  --hero-from: #0a383d;
+  --hero-to: #082528;
+  --hero-ink: #ecf9fa;
+  --hero-ink-soft: #8ccdd3;
+}
+[data-brand="earth"] {
+  --brand: #8a5a12;
+  --brand-hover: #70490e;
+  --brand-ink: #ffffff;
+  --brand-soft: #f8eedc;
+  --brand-soft-ink: #70490e;
+  --accent: #94610f;
+  --hero-from: #3d2706;
+  --hero-to: #5e3c0b;
+  --hero-ink: #fcf6ec;
+  --hero-ink-soft: #e8cfa3;
+}
+.dark [data-brand="earth"] {
+  --brand: #d9a24a;
+  --brand-hover: #e3b265;
+  --brand-ink: #1d1203;
+  --brand-soft: #2a1f0e;
+  --brand-soft-ink: #eec784;
+  --accent: #ebc179;
+  --hero-from: #3b2709;
+  --hero-to: #261906;
+  --hero-ink: #fbf4e8;
+  --hero-ink-soft: #dcc08f;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) [data-brand="ocean"] {
+    --brand: #4c8fe6;
+    --brand-hover: #66a2ee;
+    --brand-ink: #03101f;
+    --brand-soft: #0f1d30;
+    --brand-soft-ink: #8fbcf5;
+    --accent: #86b6f3;
+    --hero-from: #0f2a4d;
+    --hero-to: #0b1c33;
+    --hero-ink: #eef5fd;
+    --hero-ink-soft: #9ebfe8;
+  }
+  :root:not(.light) [data-brand="royal"] {
+    --brand: #9a82f0;
+    --brand-hover: #ab97f4;
+    --brand-ink: #120a2b;
+    --brand-soft: #1d1636;
+    --brand-soft-ink: #c2b3f7;
+    --accent: #b9a7f6;
+    --hero-from: #2a1d52;
+    --hero-to: #1a1235;
+    --hero-ink: #f3f0fd;
+    --hero-ink-soft: #b7a8e8;
+  }
+  :root:not(.light) [data-brand="crimson"] {
+    --brand: #e5707b;
+    --brand-hover: #ec8790;
+    --brand-ink: #24070b;
+    --brand-soft: #2e1316;
+    --brand-soft-ink: #f3a8af;
+    --accent: #f09aa3;
+    --hero-from: #4a141b;
+    --hero-to: #2e0c11;
+    --hero-ink: #fdf0f1;
+    --hero-ink-soft: #e6a9b0;
+  }
+  :root:not(.light) [data-brand="teal"] {
+    --brand: #2bb3bf;
+    --brand-hover: #3fc4cf;
+    --brand-ink: #031416;
+    --brand-soft: #0d2629;
+    --brand-soft-ink: #7ad9e0;
+    --accent: #6dd3db;
+    --hero-from: #0a383d;
+    --hero-to: #082528;
+    --hero-ink: #ecf9fa;
+    --hero-ink-soft: #8ccdd3;
+  }
+  :root:not(.light) [data-brand="earth"] {
+    --brand: #d9a24a;
+    --brand-hover: #e3b265;
+    --brand-ink: #1d1203;
+    --brand-soft: #2a1f0e;
+    --brand-soft-ink: #eec784;
+    --accent: #ebc179;
+    --hero-from: #3b2709;
+    --hero-to: #261906;
+    --hero-ink: #fbf4e8;
+    --hero-ink-soft: #dcc08f;
+  }
+}
+
 @theme inline {
   --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Bricolage Grotesque Variable", "Figtree Variable", ui-sans-serif, sans-serif;

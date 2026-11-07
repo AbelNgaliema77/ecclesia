@@ -4,6 +4,7 @@ import { audit, people } from "@ecclesia/db/repositories";
 import { broadestScope, can } from "@ecclesia/domain/access";
 import { personInputSchema, transitionStatus } from "@ecclesia/domain/people";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { ActionState } from "@/lib/action-state";
 import { ensure, formToObject, parseInput, runChurchAction, unwrap } from "@/server/action";
@@ -75,4 +76,34 @@ export async function updatePersonAction(
     revalidatePath(`/people/${result.data.id}`);
   }
   return result;
+}
+
+export async function deletePersonAction(
+  _previous: ActionState<null>,
+  formData: FormData,
+): Promise<ActionState<null>> {
+  const result = await runChurchAction(
+    { permission: "people.write", write: true },
+    async ({ tx, actor }) => {
+      const id = parseInput(idSchema, formToObject(formData).id);
+      const existing = await people.getPerson(tx, id);
+      ensure(existing !== null, "notFound");
+      const teamIds = await people.personTeamIds(tx, id);
+      ensure(can(actor, "people.write", { personId: id, teamIds }));
+      ensure(actor.personId !== id, "people.deleteSelf");
+      await people.softDeletePerson(tx, id);
+      await audit.recordAudit(tx, {
+        actorUserId: actor.userId,
+        action: "person.deleted",
+        entityType: "person",
+        entityId: id,
+        before: existing,
+      });
+      return null;
+    },
+  );
+  if (result.status !== "success") return result;
+  revalidatePath("/people");
+  revalidatePath("/teams", "layout");
+  redirect("/people");
 }

@@ -58,31 +58,29 @@ describe("can", () => {
 });
 
 describe("default roles", () => {
-  it("keeps individual giving private from church admins and pastors", () => {
-    const admin = actor(DEFAULT_ROLES.churchAdmin);
-    const pastor = actor(DEFAULT_ROLES.seniorPastor);
-    expect(can(admin, "giving.readIndividual")).toBe(false);
-    expect(can(pastor, "giving.readIndividual")).toBe(false);
-    expect(can(pastor, "giving.readTotals")).toBe(true);
+  it("gives pastors and church admins full access", () => {
+    for (const role of [DEFAULT_ROLES.pastor, DEFAULT_ROLES.churchAdmin]) {
+      const admin = actor(role);
+      expect(can(admin, "settings.manage")).toBe(true);
+      expect(can(admin, "giving.readIndividual")).toBe(true);
+      expect(can(admin, "attendance.capture")).toBe(true);
+    }
   });
 
-  it("does not let finance officers approve payments", () => {
-    expect(can(actor(DEFAULT_ROLES.financeOfficer), "payments.approve")).toBe(false);
-    expect(can(actor(DEFAULT_ROLES.treasurer), "payments.approve")).toBe(true);
+  it("lets team leaders see everyone but edit only their own team", () => {
+    const leader = actor(DEFAULT_ROLES.teamLeader);
+    expect(can(leader, "people.read", { teamIds: ["other"] })).toBe(true);
+    expect(can(leader, "people.write", { teamIds: ["t1"] })).toBe(true);
+    expect(can(leader, "people.write", { teamIds: ["other"] })).toBe(false);
+    expect(can(leader, "teams.write", { teamIds: ["other"] })).toBe(false);
   });
 
-  it("gives ushers attendance capture only", () => {
-    const usher = actor(DEFAULT_ROLES.usher);
-    expect(can(usher, "attendance.capture")).toBe(true);
-    expect(can(usher, "people.read")).toBe(false);
-  });
-
-  it("keeps auditors read-only", () => {
-    const auditor = actor(DEFAULT_ROLES.auditor);
-    const writes = DEFAULT_ROLES.auditor.filter(
-      (g) => g.permission.endsWith(".write") || g.permission.endsWith(".manage"),
-    );
-    expect(writes).toEqual([]);
-    expect(can(auditor, "audit.read")).toBe(true);
+  it("keeps team leaders out of attendance, finance and settings", () => {
+    const leader = actor(DEFAULT_ROLES.teamLeader);
+    expect(can(leader, "attendance.read")).toBe(false);
+    expect(can(leader, "attendance.capture")).toBe(false);
+    expect(can(leader, "giving.readTotals")).toBe(false);
+    expect(can(leader, "settings.manage")).toBe(false);
+    expect(can(leader, "users.manage")).toBe(false);
   });
 });

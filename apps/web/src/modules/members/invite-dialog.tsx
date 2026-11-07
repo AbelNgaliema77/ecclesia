@@ -60,6 +60,7 @@ function InviteForm({
 }: InviteDialogProps & { close: () => void }) {
   const t = useTranslations("settings.members");
   const tc = useTranslations("common");
+  const to = useTranslations("outbox");
   const format = useFormatter();
   const router = useRouter();
   const [state, action, pending] = useActionState(createInvitationAction, idleState);
@@ -68,19 +69,20 @@ function InviteForm({
 
   useEffect(() => {
     if (state.status === "success") {
-      toast.success(t("inviteCreated"));
+      toast.success(t(state.data.delivery === "sent" ? "inviteSent" : "inviteCreated"));
       router.refresh();
     }
   }, [state, t, router]);
 
   if (state.status === "success") {
-    const { link, email, expiresAt } = state.data;
+    const { link, email, expiresAt, delivery } = state.data;
     const message = t("whatsappMessage", { church: churchName, link });
     return (
       <div className="flex flex-col gap-5">
         <div>
-          <h3 className="font-bold">{t("linkTitle")}</h3>
+          <h3 className="font-bold">{t(`delivery.${delivery}.title`, { email })}</h3>
           <p className="mt-1 text-sm text-ink-soft">
+            {t(`delivery.${delivery}.lead`)}{" "}
             {t("linkLead", {
               email,
               date: format.dateTime(new Date(expiresAt), { dateStyle: "long" }),
@@ -106,6 +108,16 @@ function InviteForm({
             {t("copy")}
           </Button>
         </div>
+        {delivery === "previewed" ? (
+          <a
+            href="/dev/outbox"
+            target="_blank"
+            rel="noopener"
+            className="text-sm font-semibold text-accent underline-offset-4 hover:underline"
+          >
+            {to("open")}
+          </a>
+        ) : null}
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button variant="ghost" onClick={close}>
             {t("done")}

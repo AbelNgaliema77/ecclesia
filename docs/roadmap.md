@@ -18,15 +18,18 @@
 - [x] Custom roles with a permission matrix
 - [x] Church settings: details, service times, attendance categories
 - [x] Create and edit teams, positions and assignments
+- [x] Three built-in roles, automatic Worker and Leader tags, people filters and deletion
+- [x] Excel and CSV import for people
+- [x] Email for invitations and password reset, with a local outbox until a provider is set
+- [x] Church branding: logo and colour theme
+- [x] Offline headcount capture with automatic sync
+- [x] Playwright end-to-end tests in CI
 
 ## Phase 1 – remaining
 
-- [ ] Church branding: logo and colours
-- [ ] Households
-- [ ] Excel import for people
-- [ ] Offline attendance capture (service worker and sync queue)
-- [ ] Playwright end-to-end tests in CI
+- [ ] Going live: domain, email provider, first church onboarded
 - [ ] Church timezone used for all date display
+- [ ] Full offline app shell (service worker) so pages open without signal
 
 ## Phase 2 – finance and inventory
 
@@ -36,6 +39,7 @@
 - Budgets, month-end close, Section 18A certificates
 - Inventory: assets, custodians, check-out and return, consumables, maintenance
 - MFA required for finance roles
+- Finance access for team leaders who lead the Finance team
 
 ## Phase 3 – growth
 

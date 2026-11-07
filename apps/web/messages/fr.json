@@ -49,10 +49,31 @@
     "signInInstead": "Se connecter",
     "invalidCredentials": "Cet e-mail et ce mot de passe ne correspondent pas. Vérifiez-les et réessayez.",
     "signUpFailed": "Impossible de créer ce compte. L'adresse e-mail est peut-être déjà enregistrée.",
-    "demoHint": "Démo : demo@ecclesia.app / Ecclesia-Demo-2026",
+    "demoHint": "Démo : demo@ecclesia.app (admin) ou leader@ecclesia.app (chef d’équipe), mot de passe Ecclesia-Demo-2026",
     "verse": "Que tout se fasse avec bienséance et avec ordre.",
     "verseRef": "1 Corinthiens 14:40",
-    "signInUnavailable": "Connexion impossible pour le moment. Vérifiez que l'application et la base de données fonctionnent, puis réessayez."
+    "signInUnavailable": "Connexion impossible pour le moment. Vérifiez que l'application et la base de données fonctionnent, puis réessayez.",
+    "forgotLink": "Mot de passe oublié ?",
+    "forgot": {
+      "title": "Réinitialiser le mot de passe",
+      "lead": "Saisissez l’e-mail de connexion et nous vous enverrons un lien pour choisir un nouveau mot de passe.",
+      "submit": "Envoyer le lien",
+      "sent": "Si un compte utilise cet e-mail, un lien est en route. Vérifiez votre boîte de réception et vos indésirables.",
+      "unavailable": "La réinitialisation par e-mail n’est pas encore configurée sur ce serveur. Demandez de l’aide à l’administrateur de l’église.",
+      "back": "Retour à la connexion"
+    },
+    "reset": {
+      "title": "Choisissez un nouveau mot de passe",
+      "lead": "Choisissez un mot de passe que vous n’utilisez nulle part ailleurs.",
+      "password": "Nouveau mot de passe",
+      "confirm": "Confirmez le mot de passe",
+      "submit": "Enregistrer",
+      "mismatch": "Les deux mots de passe ne correspondent pas.",
+      "invalid": "Ce lien est invalide ou a expiré.",
+      "again": "Demander un nouveau lien",
+      "done": "Votre mot de passe a été modifié. Connectez-vous avec le nouveau mot de passe."
+    },
+    "tooManyAttempts": "Trop de tentatives. Patientez une minute puis réessayez."
   },
   "onboarding": {
     "title": "Configurer votre église",
@@ -101,22 +122,24 @@
       "teams": "Voir les équipes",
       "teamsLead": "Postes et postes vacants"
     },
-    "perService": "par culte"
+    "perService": "par culte",
+    "yourTeams": "Vos équipes",
+    "yourTeamsLead": "Les équipes que vous dirigez. Vous pouvez gérer leurs membres et leurs postes.",
+    "teamSummary": "{members, plural, one {# personne} other {# personnes}}{open, plural, =0 {} one { · # poste libre} other { · # postes libres}}"
   },
   "people": {
     "title": "Personnes",
-    "lead": "Toutes les personnes liées à l'église, des nouveaux visiteurs aux responsables.",
+    "lead": "Toute l’église. Les ouvriers et responsables sont identifiés d’après les équipes où ils servent.",
     "add": "Ajouter une personne",
     "searchLabel": "Rechercher des personnes",
     "searchPlaceholder": "Nom, e-mail ou téléphone",
-    "allStatuses": "Tous les statuts",
-    "statusFilter": "Statut",
     "columns": {
       "name": "Nom",
       "status": "Statut",
       "phone": "Téléphone",
       "email": "E-mail",
-      "firstVisit": "Première visite"
+      "firstVisit": "Première visite",
+      "teams": "Équipes"
     },
     "count": "{count, plural, =0 {Aucune personne} one {# personne} other {# personnes}}",
     "empty": "Personne ne correspond à cette recherche. Essayez un autre nom ou effacez les filtres.",
@@ -152,13 +175,62 @@
       "visitor": "Visiteur",
       "regular": "Habitué",
       "member": "Membre",
-      "worker": "Ouvrier",
-      "leader": "Responsable",
       "inactive": "Inactif"
     },
     "gender": {
       "male": "Homme",
       "female": "Femme"
+    },
+    "filterLabel": "Afficher",
+    "filter": {
+      "everyone": "Tout le monde",
+      "workers": "Ouvriers",
+      "leaders": "Responsables",
+      "visitor": "Visiteurs",
+      "regular": "Habitués",
+      "member": "Membres",
+      "inactive": "Inactifs"
+    },
+    "serving": {
+      "label": "Équipes",
+      "leader": "responsable",
+      "worker": "ouvrier"
+    },
+    "delete": "Supprimer la personne",
+    "deleteTitle": "Supprimer {name} ?",
+    "deleteLead": "Elle sera retirée des Personnes et de toutes ses équipes. Les totaux de présence et le journal d’audit sont conservés.",
+    "deleted": "Personne supprimée",
+    "import": {
+      "open": "Importer",
+      "title": "Importer des personnes",
+      "lead": "Importez la liste de l’église depuis Excel ou un fichier CSV. Chaque ligne est vérifiée avant tout enregistrement.",
+      "choose": "Choisissez un fichier ou déposez-le ici",
+      "chooseHint": "Excel (.xlsx) ou CSV, jusqu’à 2 000 personnes et 5 Mo.",
+      "columnsHint": "Le prénom et le nom sont obligatoires. Les autres colonnes, dont Équipe, sont facultatives.",
+      "template": "Télécharger le modèle",
+      "templateFile": "ecclesia-modele-personnes",
+      "team": "Équipe",
+      "missing": "Il manque des colonnes obligatoires : {columns}.",
+      "previewTitle": "Vérifiez avant d’importer",
+      "summary": {
+        "ready": "{count, plural, one {# prête} other {# prêtes}}",
+        "duplicates": "{count, plural, one {# déjà présente} other {# déjà présentes}}",
+        "invalid": "{count, plural, one {# à corriger} other {# à corriger}}"
+      },
+      "problemsOnly": "Afficher seulement les lignes non importées",
+      "submit": "{count, plural, =0 {Rien à importer} one {Importer # personne} other {Importer # personnes}}",
+      "row": "Ligne",
+      "person": "Personne",
+      "result": "Résultat",
+      "outcome": {
+        "ready": "Prête",
+        "invalid": "À corriger",
+        "duplicate": {
+          "church": "Déjà dans Personnes",
+          "file": "En double dans le fichier"
+        }
+      },
+      "done": "{count, plural, one {# personne importée} other {# personnes importées}}"
     }
   },
   "teams": {
@@ -232,7 +304,15 @@
     "save": "Enregistrer le comptage",
     "saved": "Comptage enregistré",
     "back": "Retour aux présences",
-    "empty": "Aucun culte pour l'instant. Commencez le premier ci-dessus."
+    "empty": "Aucun culte pour l'instant. Commencez le premier ci-dessus.",
+    "offline": {
+      "queued": "Pas de réseau. Le comptage est enregistré sur ce téléphone et sera synchronisé automatiquement.",
+      "onDevice": "Ce comptage est enregistré sur ce téléphone et n’a pas encore atteint le serveur. Il sera synchronisé dès le retour du réseau.",
+      "waiting": "{count, plural, one {# comptage en attente de synchronisation} other {# comptages en attente de synchronisation}}",
+      "retry": "Synchroniser",
+      "synced": "{count, plural, one {# comptage synchronisé} other {# comptages synchronisés}}",
+      "rejected": "Un comptage enregistré sur ce téléphone n’a pas pu être synchronisé et a été écarté. Vérifiez le culte et recomptez."
+    }
   },
   "errors": {
     "required": "Ce champ est obligatoire.",
@@ -248,7 +328,7 @@
       "readOnly": "Ecclesia est en lecture seule jusqu'à la mise à jour de l'abonnement."
     },
     "person": {
-      "invalidStatusTransition": "Ce changement de statut n'est pas autorisé. Faites avancer chaque personne une étape à la fois."
+      "invalidStatusTransition": "Ce changement de statut n’est pas autorisé."
     },
     "invalidTimeZone": "Choisissez un fuseau horaire dans la liste.",
     "invalidTime": "Saisissez une heure comme 09:30.",
@@ -275,6 +355,27 @@
     },
     "positions": {
       "hasHistory": "Ce poste a un historique d’affectations, il ne peut donc pas être supprimé."
+    },
+    "people": {
+      "deleteSelf": "Vous ne pouvez pas supprimer votre propre profil. Demandez à un autre administrateur."
+    },
+    "import": {
+      "invalidGender": "Indiquez Homme ou Femme.",
+      "invalidStatus": "Indiquez Visiteur, Habitué, Membre ou Inactif.",
+      "invalidDate": "Indiquez une date comme 09/03/2024 ou 2024-03-09.",
+      "invalidEmail": "Cette adresse e-mail n’est pas valide.",
+      "unknownTeam": "Aucune équipe porte ce nom. Créez-la d’abord ou corrigez l’orthographe.",
+      "teamFull": "Cette équipe n’a aucun poste de membre libre.",
+      "missingColumns": "Il manque des colonnes obligatoires dans le fichier.",
+      "nothingToImport": "Ce fichier ne contient personne de nouveau.",
+      "unreadable": "Impossible de lire ce fichier. Enregistrez-le en .xlsx ou .csv puis réessayez.",
+      "tooManyRows": "Ce fichier contient plus de 2 000 personnes. Divisez-le en plusieurs fichiers.",
+      "empty": "Ce fichier ne contient aucune personne."
+    },
+    "branding": {
+      "logoTooLarge": "Cette image dépasse 512 Ko. Choisissez-en une plus légère.",
+      "logoType": "Utilisez une image PNG, JPG ou WebP.",
+      "logoEmpty": "Choisissez une image à importer."
     }
   },
   "common": {
@@ -303,6 +404,7 @@
     "lead": "Configurez le fonctionnement de {church} dans Ecclesia.",
     "tabs": {
       "general": "Général",
+      "branding": "Identité",
       "members": "Membres",
       "roles": "Rôles",
       "services": "Cultes",
@@ -332,8 +434,7 @@
       "noPerson": "Non liée",
       "createInvite": "Créer l’invitation",
       "inviteCreated": "Invitation créée",
-      "linkTitle": "Partager l’invitation",
-      "linkLead": "Envoyez ce lien à {email}. Il ne peut être utilisé qu’une fois et expire le {date}.",
+      "linkLead": "Vous pouvez aussi partager le lien vous-même. Il ne sert qu’une fois et expire le {date}.",
       "copy": "Copier le lien",
       "copied": "Lien copié",
       "whatsapp": "Envoyer sur WhatsApp",
@@ -357,7 +458,26 @@
       "revoke": "Annuler",
       "revokeTitle": "Annuler l’invitation de {email} ?",
       "revokeLead": "Le lien cesse de fonctionner immédiatement.",
-      "revoked": "Invitation annulée"
+      "revoked": "Invitation annulée",
+      "inviteSent": "Invitation envoyée par e-mail",
+      "delivery": {
+        "sent": {
+          "title": "Invitation envoyée à {email}",
+          "lead": "La personne recevra un e-mail avec un bouton pour rejoindre."
+        },
+        "previewed": {
+          "title": "Invitation prête pour {email}",
+          "lead": "L’e-mail n’est pas encore connecté : un aperçu a été enregistré au lieu de l’envoi."
+        },
+        "skipped": {
+          "title": "Partagez l’invitation avec {email}",
+          "lead": "L’e-mail n’est pas encore configuré sur ce serveur."
+        },
+        "failed": {
+          "title": "Partagez l’invitation avec {email}",
+          "lead": "Impossible d’envoyer l’e-mail pour le moment."
+        }
+      }
     },
     "roles": {
       "title": "Rôles et autorisations",
@@ -418,7 +538,7 @@
     },
     "services": {
       "title": "Horaires des cultes",
-      "lead": "Les cultes que les huissiers peuvent ouvrir pour un comptage.",
+      "lead": "Les cultes qui peuvent être ouverts pour un comptage.",
       "add": "Ajouter un culte",
       "addTitle": "Ajouter un culte",
       "editTitle": "Modifier {name}",
@@ -451,6 +571,31 @@
       "hiddenToast": "Catégorie masquée",
       "shownToast": "Catégorie réaffichée",
       "hiddenNote": "Les catégories masquées conservent leur historique mais ne sont plus comptées."
+    },
+    "branding": {
+      "logoTitle": "Logo",
+      "logoLead": "Affiché à côté du nom de l’église pour toutes les personnes connectées.",
+      "logoCurrent": "Le logo de votre église",
+      "logoNone": "Aucun logo pour l’instant",
+      "logoHint": "PNG, JPG ou WebP, de préférence carré, 512 Ko maximum.",
+      "uploadLogo": "Importer un logo",
+      "replaceLogo": "Remplacer",
+      "removeLogo": "Retirer",
+      "uploading": "Import…",
+      "logoSaved": "Logo mis à jour",
+      "logoRemoved": "Logo retiré",
+      "themeTitle": "Thème de couleur",
+      "themeLead": "Chaque thème est réglé pour un contraste lisible en mode clair et sombre.",
+      "saveTheme": "Enregistrer le thème",
+      "themeSaved": "Thème mis à jour",
+      "themes": {
+        "forest": "Forêt",
+        "ocean": "Océan",
+        "royal": "Royal",
+        "crimson": "Pourpre",
+        "teal": "Sarcelle",
+        "earth": "Terre"
+      }
     }
   },
   "invite": {
@@ -473,5 +618,31 @@
     "title": "Page introuvable",
     "lead": "Cette page n’existe pas, ou vous n’y avez pas accès.",
     "back": "Retour au tableau de bord"
+  },
+  "email": {
+    "linkFallback": "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
+    "invitation": {
+      "subject": "{inviter} vous invite à rejoindre {church} sur Ecclesia",
+      "preheader": "Rejoignez {church} en tant que {role}.",
+      "heading": "Vous êtes invité à rejoindre {church}",
+      "body": "{inviter} vous invite à aider à gérer {church} sur Ecclesia en tant que {role}. Acceptez l’invitation pour créer votre compte ou vous connecter.",
+      "expires": "Cette invitation expire le {date, date, long}.",
+      "action": "Accepter l’invitation",
+      "footnote": "Si vous ne vous attendiez pas à ce message, ignorez-le. Personne n’obtient d’accès tant que l’invitation n’est pas acceptée."
+    },
+    "reset": {
+      "subject": "Réinitialisez votre mot de passe Ecclesia",
+      "preheader": "Choisissez un nouveau mot de passe pour votre compte.",
+      "heading": "Bonjour {name}, réinitialisons votre mot de passe",
+      "body": "Une demande de réinitialisation du mot de passe de ce compte Ecclesia a été faite. Le lien est valable une heure et ne peut servir qu’une fois.",
+      "action": "Choisir un nouveau mot de passe",
+      "footnote": "Si vous n’êtes pas à l’origine de cette demande, ignorez ce message. Votre mot de passe reste inchangé."
+    }
+  },
+  "outbox": {
+    "title": "Boîte d’envoi",
+    "lead": "L’e-mail n’est pas encore connecté : les messages sont enregistrés ici au lieu d’être envoyés. Ouvrez-en un pour voir ce que les gens recevraient.",
+    "empty": "Aucun e-mail pour l’instant. Invitez quelqu’un ou demandez une réinitialisation pour en voir un ici.",
+    "open": "Ouvrir la boîte d’envoi"
   }
 }

@@ -15,7 +15,12 @@ export default async function SettingsLayout({ children }: { children: ReactNode
   const t = await getTranslations("settings");
 
   const tabs: { href: Route; label: string }[] = [
-    ...(canSettings ? [{ href: "/settings" as Route, label: t("tabs.general") }] : []),
+    ...(canSettings
+      ? [
+          { href: "/settings" as Route, label: t("tabs.general") },
+          { href: "/settings/branding" as Route, label: t("tabs.branding") },
+        ]
+      : []),
     ...(canUsers
       ? [
           { href: "/settings/members" as Route, label: t("tabs.members") },

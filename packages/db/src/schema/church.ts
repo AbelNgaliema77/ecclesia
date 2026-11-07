@@ -1,10 +1,12 @@
 import type { Grant } from "@ecclesia/domain/access";
 import { GENDERS, PERSON_STATUSES } from "@ecclesia/domain/people";
+import { LOGO_TYPES, MAX_LOGO_BYTES } from "@ecclesia/domain/settings";
 import { sql } from "drizzle-orm";
 import {
   bigint,
   boolean,
   check,
+  customType,
   date,
   foreignKey,
   index,
@@ -369,3 +371,28 @@ export const CHURCH_SCOPED_TABLES = [
   "audit_log",
   "invitations",
 ] as const;
+
+const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
+  dataType: () => "bytea",
+  toDriver: (value) => Buffer.from(value),
+  fromDriver: (value) => new Uint8Array(value),
+});
+
+export const churchLogos = pgTable(
+  "church_logos",
+  {
+    churchId: uuid()
+      .primaryKey()
+      .references(() => churches.id, { onDelete: "cascade" }),
+    contentType: text().notNull(),
+    data: bytea().notNull(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  () => [
+    check(
+      "church_logos_content_type",
+      sql.raw(`content_type in (${LOGO_TYPES.map((type) => `'${type}'`).join(", ")})`),
+    ),
+    check("church_logos_size", sql.raw(`octet_length(data) <= ${MAX_LOGO_BYTES}`)),
+  ],
+);

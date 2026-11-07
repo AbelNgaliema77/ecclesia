@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import { authClient } from "@/lib/auth-client";
+import { useHydrated } from "@/lib/use-hydrated";
 
 export function SignUpForm({ next, email }: { next: string | null; email: string }) {
   const t = useTranslations("auth");
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const hydrated = useHydrated();
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -59,7 +61,7 @@ export function SignUpForm({ next, email }: { next: string | null; email: string
           required
         />
       </Field>
-      <Button type="submit" size="lg" disabled={pending} className="mt-2">
+      <Button type="submit" size="lg" disabled={pending || !hydrated} className="mt-2">
         {t("signUp")}
       </Button>
     </form>

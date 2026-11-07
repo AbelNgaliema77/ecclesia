@@ -1,14 +1,7 @@
 import { z } from "zod";
 import { domainError, err, ok, type Result } from "../shared/result";
 
-export const PERSON_STATUSES = [
-  "visitor",
-  "regular",
-  "member",
-  "worker",
-  "leader",
-  "inactive",
-] as const;
+export const PERSON_STATUSES = ["visitor", "regular", "member", "inactive"] as const;
 
 export type PersonStatus = (typeof PERSON_STATUSES)[number];
 
@@ -19,11 +12,13 @@ export type Gender = (typeof GENDERS)[number];
 const ALLOWED_TRANSITIONS: Record<PersonStatus, readonly PersonStatus[]> = {
   visitor: ["regular", "member", "inactive"],
   regular: ["member", "inactive"],
-  member: ["worker", "regular", "inactive"],
-  worker: ["leader", "member", "inactive"],
-  leader: ["worker", "member", "inactive"],
+  member: ["regular", "inactive"],
   inactive: ["regular", "member"],
 };
+
+export const PEOPLE_FILTERS = ["workers", "leaders", ...PERSON_STATUSES] as const;
+
+export type PeopleFilter = (typeof PEOPLE_FILTERS)[number];
 
 export const canTransition = (from: PersonStatus, to: PersonStatus): boolean =>
   from === to || ALLOWED_TRANSITIONS[from].includes(to);

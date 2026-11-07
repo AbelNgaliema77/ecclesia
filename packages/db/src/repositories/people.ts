@@ -1,4 +1,4 @@
-import type { PersonStatus, ValidPerson } from "@ecclesia/domain/people";
+import type { PeopleFilter, PersonStatus, ValidPerson } from "@ecclesia/domain/people";
 import {
   and,
   asc,
@@ -14,7 +14,15 @@ import {
   sql,
 } from "drizzle-orm";
 import { currentChurchId, type Tx } from "../client";
-import { assignments, people, personStatusHistory, positions } from "../schema";
+import {
+  assignments,
+  type LocalizedText,
+  memberships,
+  people,
+  personStatusHistory,
+  positions,
+  teams,
+} from "../schema";
 
 export type Visibility =
   | { readonly scope: "church" }
@@ -44,9 +52,25 @@ export type PersonRow = typeof people.$inferSelect;
 
 export type ListPeopleQuery = {
   readonly search?: string;
-  readonly status?: PersonStatus;
+  readonly filter?: PeopleFilter;
   readonly limit: number;
   readonly offset: number;
+};
+
+const servingFilter = (leadersOnly: boolean): SQL =>
+  inArray(
+    people.id,
+    sql`(select ${assignments.personId} from ${assignments}
+         inner join ${positions} on ${positions.id} = ${assignments.positionId}
+         where (${assignments.endsOn} is null or ${assignments.endsOn} >= current_date)
+         ${leadersOnly ? sql`and ${positions.isLeadership} = true` : sql``})`,
+  );
+
+const filterClause = (filter: PeopleFilter | undefined): SQL | undefined => {
+  if (!filter) return undefined;
+  if (filter === "workers") return servingFilter(false);
+  if (filter === "leaders") return servingFilter(true);
+  return eq(people.status, filter);
 };
 
 export const listPeople = async (tx: Tx, visibility: Visibility, query: ListPeopleQuery) => {
@@ -54,7 +78,7 @@ export const listPeople = async (tx: Tx, visibility: Visibility, query: ListPeop
   const where = and(
     isNull(people.deletedAt),
     visibilityFilter(visibility),
-    query.status ? eq(people.status, query.status) : undefined,
+    filterClause(query.filter),
     term
       ? or(
           ilike(people.firstName, `%${term}%`),
@@ -77,7 +101,82 @@ export const listPeople = async (tx: Tx, visibility: Visibility, query: ListPeop
     tx.select({ total: count() }).from(people).where(where),
   ]);
 
-  return { rows, total: totals[0]?.total ?? 0 };
+  const serving = await servingFor(
+    tx,
+    rows.map((r) => r.id),
+  );
+  return {
+    rows: rows.map((row) => ({ ...row, serving: serving.get(row.id) ?? [] })),
+    total: totals[0]?.total ?? 0,
+  };
+};
+
+export type Serving = {
+  readonly teamId: string;
+  readonly teamName: LocalizedText;
+  readonly isLeader: boolean;
+};
+
+export const servingFor = async (
+  tx: Tx,
+  personIds: readonly string[],
+): Promise<Map<string, Serving[]>> => {
+  const result = new Map<string, Serving[]>();
+  if (personIds.length === 0) return result;
+  const rows = await tx
+    .select({
+      personId: assignments.personId,
+      teamId: teams.id,
+      teamName: teams.name,
+      isLeader: positions.isLeadership,
+    })
+    .from(assignments)
+    .innerJoin(positions, eq(positions.id, assignments.positionId))
+    .innerJoin(teams, eq(teams.id, positions.teamId))
+    .where(
+      and(
+        inArray(assignments.personId, [...personIds]),
+        or(isNull(assignments.endsOn), gte(assignments.endsOn, sql`current_date`)),
+      ),
+    );
+  for (const row of rows) {
+    const list = result.get(row.personId) ?? [];
+    const existing = list.find((s) => s.teamId === row.teamId);
+    if (existing) {
+      if (row.isLeader && !existing.isLeader)
+        list[list.indexOf(existing)] = { ...existing, isLeader: true };
+    } else {
+      list.push({ teamId: row.teamId, teamName: row.teamName, isLeader: row.isLeader });
+    }
+    result.set(row.personId, list);
+  }
+  return result;
+};
+
+export const softDeletePerson = async (tx: Tx, id: string) => {
+  const [row] = await tx
+    .update(people)
+    .set({ deletedAt: new Date() })
+    .where(and(eq(people.id, id), isNull(people.deletedAt)))
+    .returning();
+  if (!row) return null;
+  await tx
+    .delete(assignments)
+    .where(and(eq(assignments.personId, id), gte(assignments.startsOn, sql`current_date`)));
+  await tx
+    .update(assignments)
+    .set({ endsOn: sql`current_date - 1` })
+    .where(
+      and(
+        eq(assignments.personId, id),
+        or(isNull(assignments.endsOn), gte(assignments.endsOn, sql`current_date`)),
+      ),
+    );
+  await tx
+    .update(memberships)
+    .set({ personId: null })
+    .where(and(eq(memberships.personId, id), eq(memberships.churchId, currentChurchId)));
+  return row;
 };
 
 export const getPerson = async (tx: Tx, id: string): Promise<PersonRow | null> => {
@@ -185,3 +284,36 @@ export const listPeopleOptions = async (tx: Tx) =>
     .from(people)
     .where(and(isNull(people.deletedAt), sql`${people.status} <> 'inactive'`))
     .orderBy(asc(people.lastName), asc(people.firstName));
+
+export const identityRecords = (tx: Tx) =>
+  tx
+    .select({
+      firstName: people.firstName,
+      lastName: people.lastName,
+      email: people.email,
+      phone: people.phone,
+    })
+    .from(people)
+    .where(isNull(people.deletedAt));
+
+export const insertPeople = async (
+  tx: Tx,
+  inputs: readonly ValidPerson[],
+  actorUserId: string | null,
+): Promise<{ id: string }[]> => {
+  if (inputs.length === 0) return [];
+  const rows = await tx
+    .insert(people)
+    .values(inputs.map((input) => ({ ...input, churchId: currentChurchId })))
+    .returning({ id: people.id, status: people.status });
+  await tx.insert(personStatusHistory).values(
+    rows.map((row) => ({
+      churchId: currentChurchId,
+      personId: row.id,
+      fromStatus: null,
+      toStatus: row.status,
+      changedBy: actorUserId,
+    })),
+  );
+  return rows.map(({ id }) => ({ id }));
+};

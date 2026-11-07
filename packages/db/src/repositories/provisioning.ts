@@ -12,15 +12,9 @@ import {
 } from "../schema";
 
 const ROLE_NAMES: Record<DefaultRoleKey, LocalizedText> = {
+  pastor: { en: "Pastor", fr: "Pasteur" },
   churchAdmin: { en: "Church Admin", fr: "Administrateur" },
-  seniorPastor: { en: "Senior Pastor", fr: "Pasteur principal" },
-  financeOfficer: { en: "Finance Officer", fr: "Responsable financier" },
-  treasurer: { en: "Treasurer", fr: "Trésorier" },
   teamLeader: { en: "Team Leader", fr: "Chef d'équipe" },
-  usher: { en: "Usher", fr: "Protocole" },
-  inventoryManager: { en: "Inventory Manager", fr: "Gestionnaire d'inventaire" },
-  member: { en: "Member", fr: "Membre" },
-  auditor: { en: "Auditor", fr: "Auditeur" },
 };
 
 const DEFAULT_CATEGORIES: { name: LocalizedText; color: string }[] = [

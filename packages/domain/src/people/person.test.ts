@@ -2,20 +2,20 @@ import { describe, expect, it } from "vitest";
 import { canTransition, displayName, personInputSchema, transitionStatus } from "./person";
 
 describe("person status", () => {
-  it("follows the growth path", () => {
+  it("follows the membership path", () => {
     expect(canTransition("visitor", "regular")).toBe(true);
-    expect(canTransition("member", "worker")).toBe(true);
-    expect(canTransition("worker", "leader")).toBe(true);
+    expect(canTransition("regular", "member")).toBe(true);
+    expect(canTransition("member", "regular")).toBe(true);
   });
 
-  it("blocks skipping straight from visitor to leader", () => {
-    const result = transitionStatus("visitor", "leader");
+  it("does not send members back to visitor", () => {
+    const result = transitionStatus("member", "visitor");
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("person.invalidStatusTransition");
   });
 
   it("allows anyone to become inactive and return", () => {
-    expect(canTransition("leader", "inactive")).toBe(true);
+    expect(canTransition("member", "inactive")).toBe(true);
     expect(canTransition("inactive", "member")).toBe(true);
   });
 });

@@ -4,9 +4,10 @@ import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { BackLink } from "@/components/ui/back-link";
+import { DeletePersonButton } from "@/modules/people/delete-person";
 import { PersonForm } from "@/modules/people/person-form";
 import { loadPerson } from "@/modules/people/queries";
-import { StatusBadge } from "@/modules/people/status-badge";
+import { ServingTags, StatusBadge } from "@/modules/people/status-badge";
 import { getChurchContext } from "@/server/context";
 
 export const metadata: Metadata = { title: "Person" };
@@ -16,7 +17,7 @@ const isoDate = (value: Date | null) => (value ? value.toISOString().slice(0, 10
 export default async function PersonPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();
-  const [{ person, history, canWrite }, context, t, format] = await Promise.all([
+  const [{ person, history, serving, canWrite }, context, t, format] = await Promise.all([
     loadPerson(id),
     getChurchContext(),
     getTranslations("people"),
@@ -26,19 +27,23 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
   return (
     <div className="flex flex-col gap-6">
       <BackLink href="/people" label={t("back")} />
-      <header className="flex items-center gap-4">
+      <header className="flex flex-wrap items-center gap-4">
         <span
           aria-hidden
           className="inline-flex size-16 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand to-[#0a3d2b] font-display text-2xl font-bold text-white"
         >
           {initials(person)}
         </span>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h1 className="truncate text-[2rem] leading-tight font-bold">{displayName(person)}</h1>
-          <div className="mt-1.5">
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <StatusBadge status={person.status} />
+            <ServingTags serving={serving} />
           </div>
         </div>
+        {canWrite && context.accessLevel === "full" ? (
+          <DeletePersonButton id={person.id} name={displayName(person)} />
+        ) : null}
       </header>
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_17rem]">
         <PersonForm

@@ -70,7 +70,7 @@ describe.skipIf(!appUrl || !ownerUrl)("tenant isolation", () => {
           email: null,
           phone: null,
           dateOfBirth: null,
-          status: "worker",
+          status: "member",
           firstVisitOn: null,
           householdId: null,
           notes: null,

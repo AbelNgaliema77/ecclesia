@@ -1,17 +1,28 @@
 "use client";
 
 import { MAX_HEADCOUNT } from "@ecclesia/domain/attendance";
-import { Minus, Plus } from "lucide-react";
+import { CloudOff, Minus, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { useActionState, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { useActionMessages } from "@/components/forms/use-field-error";
 import { Button } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form-alert";
-import { idleState } from "@/lib/action-state";
+import { type ActionState, idleState } from "@/lib/action-state";
+import { useHydrated } from "@/lib/use-hydrated";
 import { saveHeadcountAction } from "./actions";
+import {
+  clearQueuedHeadcount,
+  headcountFormData,
+  isNetworkFailure,
+  QUEUE_EVENT,
+  queuedHeadcount,
+  queueHeadcount,
+} from "./offline/queue";
 
 type HeadcountFormProps = {
+  churchId: string;
   serviceId: string;
   categories: readonly { id: string; label: string; color: string }[];
   initial: Readonly<Record<string, number>>;
@@ -20,21 +31,70 @@ type HeadcountFormProps = {
 
 const clamp = (value: number) => Math.min(MAX_HEADCOUNT, Math.max(0, Math.trunc(value)));
 
-export function HeadcountForm({ serviceId, categories, initial, disabled }: HeadcountFormProps) {
+export function HeadcountForm({
+  churchId,
+  serviceId,
+  categories,
+  initial,
+  disabled,
+}: HeadcountFormProps) {
   const t = useTranslations("attendance");
   const tc = useTranslations("common");
   const format = useFormatter();
+  const router = useRouter();
   const [counts, setCounts] = useState<Record<string, number>>(() =>
     Object.fromEntries(categories.map((c) => [c.id, initial[c.id] ?? 0])),
   );
   const [bump, setBump] = useState<Record<string, number>>({});
-  const [state, action, pending] = useActionState(saveHeadcountAction, idleState);
+  const [state, setState] = useState<ActionState<{ total: number }>>(idleState);
+  const [queued, setQueued] = useState(false);
+  const [pending, startTransition] = useTransition();
+  const hydrated = useHydrated();
   const { formError } = useActionMessages(state);
   const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
 
   useEffect(() => {
-    if (state.status === "success") toast.success(t("saved"));
-  }, [state, t]);
+    const restore = () => {
+      const entry = queuedHeadcount(churchId, serviceId);
+      setQueued(entry !== null);
+      return entry;
+    };
+    const entry = restore();
+    if (entry) setCounts((current) => ({ ...current, ...entry.counts }));
+    window.addEventListener(QUEUE_EVENT, restore);
+    return () => window.removeEventListener(QUEUE_EVENT, restore);
+  }, [churchId, serviceId]);
+
+  const keepOnDevice = () => {
+    if (queueHeadcount({ churchId, serviceId, counts })) {
+      setState(idleState);
+      toast.info(t("offline.queued"));
+    } else {
+      setState({ status: "error", code: "unexpected" });
+    }
+  };
+
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!navigator.onLine) {
+      keepOnDevice();
+      return;
+    }
+    startTransition(async () => {
+      try {
+        const result = await saveHeadcountAction(idleState, headcountFormData(serviceId, counts));
+        setState(result);
+        if (result.status === "success") {
+          clearQueuedHeadcount(churchId, serviceId);
+          toast.success(t("saved"));
+          router.refresh();
+        }
+      } catch (error) {
+        if (!isNetworkFailure(error)) throw error;
+        keepOnDevice();
+      }
+    });
+  };
 
   const change = (id: string, next: number) =>
     setCounts((current) => ({ ...current, [id]: clamp(next) }));
@@ -46,11 +106,19 @@ export function HeadcountForm({ serviceId, categories, initial, disabled }: Head
   };
 
   return (
-    <form action={action} className="flex flex-col gap-4">
-      <input type="hidden" name="serviceId" value={serviceId} />
+    <form onSubmit={submit} className="flex flex-col gap-4">
       {formError ? <FormAlert tone="error" message={formError} /> : null}
+      {queued ? (
+        <p
+          role="status"
+          className="flex items-center gap-2.5 rounded-control bg-gold-soft px-4 py-3 text-sm font-medium text-gold-ink"
+        >
+          <CloudOff aria-hidden className="size-4 shrink-0" />
+          {t("offline.onDevice")}
+        </p>
+      ) : null}
 
-      <fieldset disabled={disabled || pending} className="grid gap-3 sm:grid-cols-2">
+      <fieldset disabled={disabled || pending || !hydrated} className="grid gap-3 sm:grid-cols-2">
         {categories.map((category) => {
           const value = counts[category.id] ?? 0;
           return (
@@ -75,7 +143,6 @@ export function HeadcountForm({ serviceId, categories, initial, disabled }: Head
               <input
                 key={bump[category.id] ?? 0}
                 id={`count-${category.id}`}
-                name={`count:${category.id}`}
                 inputMode="numeric"
                 pattern="[0-9]*"
                 value={String(value)}
@@ -114,7 +181,7 @@ export function HeadcountForm({ serviceId, categories, initial, disabled }: Head
             <Button
               type="submit"
               size="lg"
-              disabled={pending}
+              disabled={pending || !hydrated}
               className="bg-white text-[#0a3d2b] shadow-none hover:bg-white/90"
             >
               {pending ? tc("saving") : t("save")}

@@ -21,11 +21,15 @@ export default async function ServiceHeadcountPage({
   if (!z.uuid().safeParse(serviceId).success) notFound();
 
   const [data, t, format, locale] = await Promise.all([
-    readChurch(["attendance.capture", "attendance.read"], async ({ tx, actor, accessLevel }) => ({
-      service: await attendance.getServiceWithHeadcounts(tx, serviceId),
-      categories: await attendance.listAttendanceCategories(tx),
-      readOnly: accessLevel !== "full" || !can(actor, "attendance.capture"),
-    })),
+    readChurch(
+      ["attendance.capture", "attendance.read"],
+      async ({ tx, actor, accessLevel, membership }) => ({
+        churchId: membership.churchId,
+        service: await attendance.getServiceWithHeadcounts(tx, serviceId),
+        categories: await attendance.listAttendanceCategories(tx),
+        readOnly: accessLevel !== "full" || !can(actor, "attendance.capture"),
+      }),
+    ),
     getTranslations("attendance"),
     getFormatter(),
     getLocale(),
@@ -42,6 +46,7 @@ export default async function ServiceHeadcountPage({
         lead={`${format.dateTime(data.service.occursAt, { dateStyle: "full", timeStyle: "short" })}. ${t("captureLead")}`}
       />
       <HeadcountForm
+        churchId={data.churchId}
         serviceId={data.service.id}
         categories={data.categories.map((c) => ({
           id: c.id,

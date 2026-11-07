@@ -1,15 +1,21 @@
 "use client";
 
-import { useId } from "react";
+import { type ChangeEvent, useId } from "react";
 
 type SwitchProps = {
-  name: string;
   label: string;
   hint?: string;
-  defaultChecked?: boolean;
-};
+} & (
+  | { name: string; defaultChecked?: boolean; checked?: never; onCheckedChange?: never }
+  | {
+      name?: never;
+      defaultChecked?: never;
+      checked: boolean;
+      onCheckedChange: (checked: boolean) => void;
+    }
+);
 
-export function Switch({ name, label, hint, defaultChecked = false }: SwitchProps) {
+export function Switch({ label, hint, ...state }: SwitchProps) {
   const id = useId();
   return (
     <label htmlFor={id} className="flex cursor-pointer items-start gap-3">
@@ -17,8 +23,13 @@ export function Switch({ name, label, hint, defaultChecked = false }: SwitchProp
         <input
           id={id}
           type="checkbox"
-          name={name}
-          defaultChecked={defaultChecked}
+          {...(state.onCheckedChange
+            ? {
+                checked: state.checked,
+                onChange: (event: ChangeEvent<HTMLInputElement>) =>
+                  state.onCheckedChange(event.target.checked),
+              }
+            : { name: state.name, defaultChecked: state.defaultChecked ?? false })}
           className="peer sr-only"
         />
         <span className="h-6 w-11 rounded-full bg-line-strong transition-colors peer-checked:bg-brand peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent" />

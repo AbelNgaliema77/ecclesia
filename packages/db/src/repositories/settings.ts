@@ -1,6 +1,13 @@
-import { asc, desc, eq, max } from "drizzle-orm";
+import type { BrandTheme, LogoType } from "@ecclesia/domain/settings";
+import { asc, desc, eq, max, sql } from "drizzle-orm";
 import { currentChurchId, type Tx } from "../client";
-import { attendanceCategories, churches, type LocalizedText, serviceTypes } from "../schema";
+import {
+  attendanceCategories,
+  churches,
+  churchLogos,
+  type LocalizedText,
+  serviceTypes,
+} from "../schema";
 
 export const getChurch = async (tx: Tx) => {
   const [row] = await tx.select().from(churches).where(eq(churches.id, currentChurchId));
@@ -93,4 +100,48 @@ export const setCategoryOrder = async (tx: Tx, orderedIds: readonly string[]) =>
       .set({ sortOrder: index })
       .where(eq(attendanceCategories.id, id));
   }
+};
+
+export const setBrandTheme = async (tx: Tx, theme: BrandTheme | null) => {
+  await tx
+    .update(churches)
+    .set({
+      branding: sql`jsonb_set(${churches.branding}, '{theme}', ${JSON.stringify(theme)}::jsonb)`,
+    })
+    .where(eq(churches.id, currentChurchId));
+};
+
+const setLogoVersion = (tx: Tx, version: string | null) =>
+  tx
+    .update(churches)
+    .set({
+      branding: sql`jsonb_set(${churches.branding}, '{logoVersion}', ${JSON.stringify(version)}::jsonb)`,
+    })
+    .where(eq(churches.id, currentChurchId));
+
+export const saveLogo = async (
+  tx: Tx,
+  logo: { contentType: LogoType; data: Uint8Array },
+): Promise<string> => {
+  const updatedAt = new Date();
+  await tx
+    .insert(churchLogos)
+    .values({ churchId: currentChurchId, ...logo, updatedAt })
+    .onConflictDoUpdate({ target: churchLogos.churchId, set: { ...logo, updatedAt } });
+  const version = updatedAt.getTime().toString(36);
+  await setLogoVersion(tx, version);
+  return version;
+};
+
+export const removeLogo = async (tx: Tx) => {
+  await tx.delete(churchLogos).where(eq(churchLogos.churchId, currentChurchId));
+  await setLogoVersion(tx, null);
+};
+
+export const getLogo = async (tx: Tx) => {
+  const [row] = await tx
+    .select()
+    .from(churchLogos)
+    .where(eq(churchLogos.churchId, currentChurchId));
+  return row ?? null;
 };

@@ -38,7 +38,7 @@ describe.skipIf(!appUrl || !ownerUrl)("invitations and members", () => {
     });
     churchA = a.church.id;
     churchB = b.church.id;
-    usherRole = a.roles.find((r) => r.key === "usher")?.id ?? "";
+    usherRole = a.roles.find((r) => r.key === "teamLeader")?.id ?? "";
     await withChurch(app, churchA, (tx) =>
       invitations.createInvitation(tx, {
         email: `${userIds[2]}@example.test`,

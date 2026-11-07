@@ -3,7 +3,10 @@ import { account, session, user, verification } from "@ecclesia/db/schema";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { isLocale } from "@/i18n/config";
 import { db } from "./db";
+import { sendEmail } from "./email";
+import { passwordResetEmail } from "./email/templates";
 import { env } from "./env";
 
 export const auth = betterAuth({
@@ -17,6 +20,13 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 10,
     maxPasswordLength: 128,
+    resetPasswordTokenExpiresIn: 60 * 60,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url }) => {
+      const locale = "locale" in user && isLocale(user.locale) ? user.locale : "en";
+      const message = passwordResetEmail({ locale, name: user.name, url });
+      void sendEmail({ ...message, to: user.email, kind: "passwordReset" });
+    },
   },
   user: {
     additionalFields: {

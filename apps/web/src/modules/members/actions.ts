@@ -13,14 +13,22 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { localized } from "@/i18n/config";
 import type { ActionState } from "@/lib/action-state";
 import { ensure, formToObject, parseInput, runChurchAction, unwrap } from "@/server/action";
 import { ACTIVE_CHURCH_COOKIE, requireSession } from "@/server/context";
 import { db } from "@/server/db";
+import { type DeliveryResult, sendEmail } from "@/server/email";
+import { invitationEmail } from "@/server/email/templates";
 import { env } from "@/server/env";
 import { hashInvitationToken, isWellFormedToken, newInvitationToken } from "./token";
 
-export type CreatedInvitation = { link: string; email: string; expiresAt: string };
+export type CreatedInvitation = {
+  link: string;
+  email: string;
+  expiresAt: string;
+  delivery: DeliveryResult["status"];
+};
 
 const uniqueViolation = (error: unknown): boolean =>
   typeof error === "object" &&
@@ -37,9 +45,10 @@ export async function createInvitationAction(
 ): Promise<ActionState<CreatedInvitation>> {
   const result = await runChurchAction(
     { permission: "users.manage", write: true },
-    async ({ tx, actor }) => {
+    async ({ tx, actor, user, membership }) => {
       const input = parseInput(invitationInputSchema, formToObject(formData));
-      ensure((await roles.getRole(tx, input.roleId)) !== null, "notFound");
+      const role = await roles.getRole(tx, input.roleId);
+      ensure(role !== null, "notFound");
       const existing = await members.listMembers(tx);
       ensure(!existing.some((m) => emailsMatch(m.email, input.email)), "members.alreadyMember");
       ensure(
@@ -67,15 +76,25 @@ export async function createInvitationAction(
         ensure(!uniqueViolation(error), "members.alreadyInvited");
         throw error;
       }
-      return {
-        link: `${env.BETTER_AUTH_URL}/invite/${token}`,
-        email: input.email,
-        expiresAt: expiresAt.toISOString(),
-      };
+      const link = `${env.BETTER_AUTH_URL}/invite/${token}`;
+      const locale = membership.defaultLocale;
+      const message = invitationEmail({
+        locale,
+        churchName: membership.churchName,
+        inviterName: user.name,
+        roleName: role ? localized(role.name, locale) : "",
+        link,
+        expiresAt,
+        timeZone: membership.timezone,
+      });
+      return { link, email: input.email, expiresAt: expiresAt.toISOString(), message };
     },
   );
-  if (result.status === "success") revalidatePath("/settings/members");
-  return result;
+  if (result.status !== "success") return result;
+  revalidatePath("/settings/members");
+  const { message, ...created } = result.data;
+  const delivery = await sendEmail({ ...message, to: created.email, kind: "invitation" });
+  return { status: "success", data: { ...created, delivery: delivery.status } };
 }
 
 const idSchema = z.object({ id: z.uuid() });

@@ -8,3 +8,6 @@ coverage
 .env.local
 .env.*.local
 .DS_Store
+.outbox
+test-results
+playwright-report

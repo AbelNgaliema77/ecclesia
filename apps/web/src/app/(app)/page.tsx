@@ -17,6 +17,7 @@ import { localized } from "@/i18n/config";
 import { cn } from "@/lib/cn";
 import { AttendanceTrendChart } from "@/modules/dashboard/attendance-trend-chart";
 import { loadDashboard } from "@/modules/dashboard/queries";
+import { loadLedTeams } from "@/modules/teams/queries";
 import { getChurchContext } from "@/server/context";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -66,7 +67,10 @@ export default async function DashboardPage() {
       : []),
   ];
 
-  const data = can(actor, "attendance.read") ? await loadDashboard() : null;
+  const [data, ledTeams] = await Promise.all([
+    can(actor, "attendance.read") ? loadDashboard() : null,
+    can(actor, "teams.read") && actor.ledTeamIds.length > 0 ? loadLedTeams() : [],
+  ]);
   const hasData = data?.trend.some((m) => m.services > 0) ?? false;
 
   return (
@@ -167,6 +171,38 @@ export default async function DashboardPage() {
               />
             </Link>
           ))}
+        </section>
+      ) : null}
+
+      {ledTeams.length > 0 ? (
+        <section className="card p-5 sm:p-6">
+          <h2 className="text-xl font-bold">{t("yourTeams")}</h2>
+          <p className="mt-1 text-sm text-ink-soft">{t("yourTeamsLead")}</p>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {ledTeams.map((team) => (
+              <li key={team.id}>
+                <Link
+                  href={`/teams/${team.id}`}
+                  className="flex items-center gap-3 rounded-control border border-line p-3.5 transition-colors hover:bg-muted"
+                >
+                  <span
+                    aria-hidden
+                    className="size-3 shrink-0 rounded-full"
+                    style={{ backgroundColor: team.color ?? "var(--brand)" }}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold">
+                      {localized(team.name, locale)}
+                    </span>
+                    <span className="block text-xs text-ink-faint">
+                      {t("teamSummary", { members: team.members, open: team.open })}
+                    </span>
+                  </span>
+                  <ChevronRight aria-hidden className="size-4 text-ink-faint" />
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
       ) : null}
 

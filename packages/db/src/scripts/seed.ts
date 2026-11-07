@@ -1,9 +1,9 @@
 import type { PersonStatus } from "@ecclesia/domain/people";
 import { en, en_ZA, Faker, fr } from "@faker-js/faker";
 import { hashPassword } from "better-auth/crypto";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { createDatabase, withChurch } from "../client";
-import { attendance, people, provisioning, teams } from "../repositories";
+import { attendance, members, people, provisioning, teams } from "../repositories";
 import { account, churches, type LocalizedText, user } from "../schema";
 import { requireEnv } from "./env";
 
@@ -11,6 +11,8 @@ const DEMO_SLUG = "grace-harbour";
 const DEMO_EMAIL = "demo@ecclesia.app";
 const DEMO_PASSWORD = "Ecclesia-Demo-2026";
 const DEMO_USER_ID = "demo-user";
+const LEADER_EMAIL = "leader@ecclesia.app";
+const LEADER_USER_ID = "demo-leader";
 const MONTHS_OF_HISTORY = 18;
 
 const owner = createDatabase(requireEnv("DATABASE_OWNER_URL"), { maxConnections: 1 });
@@ -81,9 +83,7 @@ const pickStatus = (): PersonStatus => {
   const roll = rng.number.float({ min: 0, max: 1 });
   if (roll < 0.12) return "visitor";
   if (roll < 0.3) return "regular";
-  if (roll < 0.72) return "member";
-  if (roll < 0.93) return "worker";
-  if (roll < 0.97) return "leader";
+  if (roll < 0.97) return "member";
   return "inactive";
 };
 
@@ -98,22 +98,16 @@ const seasonalFactor = (date: Date): number => {
 
 const removeExistingDemo = async () => {
   await owner.delete(churches).where(eq(churches.slug, DEMO_SLUG));
-  await owner.delete(user).where(eq(user.id, DEMO_USER_ID));
+  await owner.delete(user).where(inArray(user.id, [DEMO_USER_ID, LEADER_USER_ID]));
 };
 
-const createDemoUser = async () => {
-  await owner.insert(user).values({
-    id: DEMO_USER_ID,
-    name: "Demo Admin",
-    email: DEMO_EMAIL,
-    emailVerified: true,
-    locale: "en",
-  });
+const createDemoUser = async (id: string, name: string, email: string) => {
+  await owner.insert(user).values({ id, name, email, emailVerified: true, locale: "en" });
   await owner.insert(account).values({
-    id: "demo-account",
-    accountId: DEMO_USER_ID,
+    id: `${id}-account`,
+    accountId: id,
     providerId: "credential",
-    userId: DEMO_USER_ID,
+    userId: id,
     password: await hashPassword(DEMO_PASSWORD),
   });
 };
@@ -137,7 +131,8 @@ const atLocalTime = (day: Date, hhmm: string): Date => {
 };
 
 await removeExistingDemo();
-await createDemoUser();
+await createDemoUser(DEMO_USER_ID, "Demo Admin", DEMO_EMAIL);
+await createDemoUser(LEADER_USER_ID, "Demo Team Leader", LEADER_EMAIL);
 
 const provisioned = await provisioning.provisionChurch(app, {
   name: "Grace Harbour Church",
@@ -154,13 +149,14 @@ const historyStart = new Date(
 );
 
 await withChurch(app, churchId, async (tx) => {
-  const personIds: string[] = [];
+  const servingCandidates: string[] = [];
   for (let i = 0; i < 220; i++) {
     const faker = i % 3 === 0 ? frFaker : zaFaker;
     const gender = faker.helpers.arrayElement(["male", "female"] as const);
     const firstName = faker.person.firstName(gender);
     const lastName = faker.person.lastName();
     const firstVisit = faker.date.between({ from: historyStart, to: now });
+    const status = pickStatus();
     const person = await people.insertPerson(
       tx,
       {
@@ -175,17 +171,18 @@ await withChurch(app, churchId, async (tx) => {
           ? `+27${faker.string.numeric({ length: 9, allowLeadingZeros: false })}`
           : null,
         dateOfBirth: faker.date.birthdate({ min: 6, max: 78, mode: "age" }),
-        status: pickStatus(),
+        status,
         firstVisitOn: i < 160 ? faker.date.past({ years: 6, refDate: historyStart }) : firstVisit,
         householdId: null,
         notes: null,
       },
       DEMO_USER_ID,
     );
-    personIds.push(person.id);
+    if (status === "member") servingCandidates.push(person.id);
   }
 
-  const pool = rng.helpers.shuffle([...personIds]);
+  const pool = rng.helpers.shuffle([...servingCandidates]);
+  let leaderPersonId: string | null = null;
   let cursor = 0;
   for (const team of TEAMS) {
     const created = await teams.insertTeam(tx, {
@@ -204,6 +201,7 @@ await withChurch(app, churchId, async (tx) => {
         const personId = pool[cursor % pool.length];
         cursor++;
         if (!personId) continue;
+        if (role.lead && team.name.en === "Media") leaderPersonId = personId;
         await teams.insertAssignment(tx, {
           personId,
           positionId: position.id,
@@ -215,6 +213,15 @@ await withChurch(app, churchId, async (tx) => {
         });
       }
     }
+  }
+
+  const leaderRole = provisioned.roles.find((r) => r.key === "teamLeader");
+  if (leaderRole) {
+    await members.addMember(tx, {
+      userId: LEADER_USER_ID,
+      roleId: leaderRole.id,
+      personId: leaderPersonId,
+    });
   }
 
   const categories = provisioned.categories;
@@ -260,3 +267,4 @@ await app.$client.end();
 
 console.log(`Seeded demo church "Grace Harbour Church"`);
 console.log(`Sign in with ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);
+console.log(`Team leader: ${LEADER_EMAIL} / ${DEMO_PASSWORD}`);

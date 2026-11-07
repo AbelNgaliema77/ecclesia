@@ -5,12 +5,14 @@ Church management for people, teams, attendance and stewardship. Multi-church, E
 ## What is in this release
 
 - Sign up, sign in, and church onboarding with default roles, attendance categories and service times
-- Role-based access with church, team and self scopes, enforced on every page and action
-- People directory with search, status filters, growth-path status rules and status history
+- Three built-in roles: Pastor and Church Admin with full access, Team Leader who sees everyone and manages their own teams
+- People directory for the whole church with Visitor, Regular, Member and Inactive statuses, automatic Worker and Leader tags from team assignments, filters, deletion and status history
+- Excel and CSV import with a row-by-row preview, duplicate skipping and optional team placement
 - Teams, positions and assignments, managed in the app, with team leaders managing their own teams
-- Members and invitations by private link, custom roles with a permission matrix
-- Church settings for details, service times and attendance categories
-- Attendance capture per service and category, built for phones, with corrections logged
+- Members and invitations sent by email, custom roles with a permission matrix
+- Password reset by email
+- Church settings for details, branding (logo and colour theme), service times and attendance categories
+- Attendance capture per service and category, built for phones, kept on the phone when signal drops and synced when it returns
 - Dashboard with average attendance, first-time visitors, people serving, and a monthly trend split by category with church seasons marked
 - Subscription states (trial, active, past due, read-only, locked) enforced across the app
 - Audit log for every change, append-only at the database level
@@ -30,7 +32,7 @@ Finance, inventory, online giving and the platform admin area follow in the next
 | Validation  | Zod, shared between domain and forms              |
 | i18n        | next-intl, cookie-based, no locale in URLs        |
 | UI          | Tailwind CSS 4, Recharts, Lucide icons            |
-| Quality     | Biome, Vitest, GitHub Actions                     |
+| Quality     | Biome, Vitest, Playwright, GitHub Actions         |
 | Hosting     | One Docker image, any VPS (Coolify recommended)   |
 
 ## Getting started
@@ -46,7 +48,9 @@ pnpm db:seed
 pnpm dev
 ```
 
-Open http://localhost:3100 and sign in with demo@ecclesia.app / Ecclesia-Demo-2026. Set ECCLESIA_SHOW_DEMO_LOGIN=true in .env to show these details on the sign-in page.
+Open http://localhost:3100 and sign in with demo@ecclesia.app (Church Admin) or leader@ecclesia.app (Team Leader), both with the password Ecclesia-Demo-2026. Set ECCLESIA_SHOW_DEMO_LOGIN=true in .env to show these details on the sign-in page.
+
+Until an email provider is configured, emails are saved locally instead of sent. Open http://localhost:3100/dev/outbox to read invitations and password reset emails.
 
 ## Everyday commands
 
@@ -54,6 +58,7 @@ Open http://localhost:3100 and sign in with demo@ecclesia.app / Ecclesia-Demo-20
 | ---------------- | ------------------------------------------------------------ |
 | pnpm dev         | Run the app locally                                          |
 | pnpm check       | Lint, typecheck and all tests                                |
+| pnpm e2e         | Browser tests with Playwright (run pnpm db:seed first)       |
 | pnpm db:generate | Create a migration from schema changes                       |
 | pnpm db:migrate  | Apply migrations                                             |
 | pnpm db:seed     | Recreate the demo church                                     |

@@ -49,10 +49,31 @@
     "signInInstead": "Sign in",
     "invalidCredentials": "That email and password don't match. Check them and try again.",
     "signUpFailed": "We couldn't create that account. The email may already be registered.",
-    "demoHint": "Demo: demo@ecclesia.app / Ecclesia-Demo-2026",
+    "demoHint": "Demo: demo@ecclesia.app (admin) or leader@ecclesia.app (team leader), password Ecclesia-Demo-2026",
     "verse": "Let all things be done decently and in order.",
     "verseRef": "1 Corinthians 14:40",
-    "signInUnavailable": "We couldn't sign you in right now. Check that the app and database are running, then try again."
+    "signInUnavailable": "We couldn't sign you in right now. Check that the app and database are running, then try again.",
+    "forgotLink": "Forgot password?",
+    "forgot": {
+      "title": "Reset your password",
+      "lead": "Enter the email you sign in with and we’ll send you a link to choose a new password.",
+      "submit": "Send reset link",
+      "sent": "If an account uses that email, a reset link is on its way. Check your inbox and spam folder.",
+      "unavailable": "Password reset by email isn’t set up for this server yet. Ask your church administrator for help.",
+      "back": "Back to sign in"
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "lead": "Pick a password you don’t use anywhere else.",
+      "password": "New password",
+      "confirm": "Confirm new password",
+      "submit": "Save new password",
+      "mismatch": "The two passwords don’t match.",
+      "invalid": "This reset link is invalid or has expired.",
+      "again": "Request a new link",
+      "done": "Your password has been changed. Sign in with your new password."
+    },
+    "tooManyAttempts": "Too many attempts. Wait a minute, then try again."
   },
   "onboarding": {
     "title": "Set up your church",
@@ -101,22 +122,24 @@
       "teams": "See teams",
       "teamsLead": "Positions and vacancies"
     },
-    "perService": "per service"
+    "perService": "per service",
+    "yourTeams": "Your teams",
+    "yourTeamsLead": "The teams you lead. You can update their people and positions.",
+    "teamSummary": "{members, plural, one {# person} other {# people}}{open, plural, =0 {} one { · # open spot} other { · # open spots}}"
   },
   "people": {
     "title": "People",
-    "lead": "Everyone connected to the church, from first-time visitors to leaders.",
+    "lead": "Everyone in the church. Workers and leaders are tagged from the teams they serve in.",
     "add": "Add person",
     "searchLabel": "Search people",
     "searchPlaceholder": "Name, email or phone",
-    "allStatuses": "All statuses",
-    "statusFilter": "Status",
     "columns": {
       "name": "Name",
       "status": "Status",
       "phone": "Phone",
       "email": "Email",
-      "firstVisit": "First visit"
+      "firstVisit": "First visit",
+      "teams": "Teams"
     },
     "count": "{count, plural, =0 {No people} one {# person} other {# people}}",
     "empty": "No one matches that search. Try a different name or clear the filters.",
@@ -152,13 +175,62 @@
       "visitor": "Visitor",
       "regular": "Regular",
       "member": "Member",
-      "worker": "Worker",
-      "leader": "Leader",
       "inactive": "Inactive"
     },
     "gender": {
       "male": "Male",
       "female": "Female"
+    },
+    "filterLabel": "Show",
+    "filter": {
+      "everyone": "Everyone",
+      "workers": "Workers",
+      "leaders": "Leaders",
+      "visitor": "Visitors",
+      "regular": "Regulars",
+      "member": "Members",
+      "inactive": "Inactive"
+    },
+    "serving": {
+      "label": "Teams",
+      "leader": "leader",
+      "worker": "worker"
+    },
+    "delete": "Delete person",
+    "deleteTitle": "Delete {name}?",
+    "deleteLead": "They’ll be removed from People and from every team they serve in. Attendance totals and the audit log are kept.",
+    "deleted": "Person deleted",
+    "import": {
+      "open": "Import",
+      "title": "Import people",
+      "lead": "Bring in your church list from Excel or a CSV file. You’ll see every row checked before anything is saved.",
+      "choose": "Choose a file or drop it here",
+      "chooseHint": "Excel (.xlsx) or CSV, up to 2,000 people and 5 MB.",
+      "columnsHint": "First name and last name are required. Other columns, including Team, are optional.",
+      "template": "Download the template",
+      "templateFile": "ecclesia-people-template",
+      "team": "Team",
+      "missing": "This file is missing required columns: {columns}.",
+      "previewTitle": "Check before importing",
+      "summary": {
+        "ready": "{count, plural, one {# ready} other {# ready}}",
+        "duplicates": "{count, plural, one {# already here} other {# already here}}",
+        "invalid": "{count, plural, one {# needs fixing} other {# need fixing}}"
+      },
+      "problemsOnly": "Only show rows that won’t be imported",
+      "submit": "{count, plural, =0 {Nothing to import} one {Import # person} other {Import # people}}",
+      "row": "Row",
+      "person": "Person",
+      "result": "Result",
+      "outcome": {
+        "ready": "Ready",
+        "invalid": "Needs fixing",
+        "duplicate": {
+          "church": "Already in People",
+          "file": "Repeated in file"
+        }
+      },
+      "done": "{count, plural, one {# person imported} other {# people imported}}"
     }
   },
   "teams": {
@@ -232,7 +304,15 @@
     "save": "Save headcount",
     "saved": "Headcount saved",
     "back": "Back to attendance",
-    "empty": "No services yet. Start the first one above."
+    "empty": "No services yet. Start the first one above.",
+    "offline": {
+      "queued": "No signal. The headcount is saved on this phone and will sync automatically.",
+      "onDevice": "This headcount is saved on this phone and hasn’t reached the server yet. It will sync when you’re back online.",
+      "waiting": "{count, plural, one {# headcount is waiting to sync} other {# headcounts are waiting to sync}}",
+      "retry": "Sync now",
+      "synced": "{count, plural, one {# saved headcount synced} other {# saved headcounts synced}}",
+      "rejected": "A headcount saved on this phone couldn’t be synced and was discarded. Check the service and count again."
+    }
   },
   "errors": {
     "required": "This field is required.",
@@ -248,7 +328,7 @@
       "readOnly": "Ecclesia is read-only until the subscription is updated."
     },
     "person": {
-      "invalidStatusTransition": "That status change isn't allowed. Move people one step at a time along their growth path."
+      "invalidStatusTransition": "That status change isn’t allowed."
     },
     "invalidTimeZone": "Choose a time zone from the list.",
     "invalidTime": "Enter a time like 09:30.",
@@ -275,6 +355,27 @@
     },
     "positions": {
       "hasHistory": "This position has assignment history, so it can’t be deleted."
+    },
+    "people": {
+      "deleteSelf": "You can’t delete your own profile. Ask another administrator."
+    },
+    "import": {
+      "invalidGender": "Use Male or Female.",
+      "invalidStatus": "Use Visitor, Regular, Member or Inactive.",
+      "invalidDate": "Use a date like 2024-03-09 or 09/03/2024.",
+      "invalidEmail": "This isn’t a valid email address.",
+      "unknownTeam": "No team with this name. Create it first or fix the spelling.",
+      "teamFull": "This team has no open member position.",
+      "missingColumns": "The file is missing required columns.",
+      "nothingToImport": "There’s nobody new to import in this file.",
+      "unreadable": "We couldn’t read that file. Save it as .xlsx or .csv and try again.",
+      "tooManyRows": "That file has more than 2,000 people. Split it into smaller files.",
+      "empty": "That file has no people in it."
+    },
+    "branding": {
+      "logoTooLarge": "That image is larger than 512 KB. Choose a smaller one.",
+      "logoType": "Use a PNG, JPG or WebP image.",
+      "logoEmpty": "Choose an image to upload."
     }
   },
   "common": {
@@ -303,6 +404,7 @@
     "lead": "Set up how {church} works in Ecclesia.",
     "tabs": {
       "general": "General",
+      "branding": "Branding",
       "members": "Members",
       "roles": "Roles",
       "services": "Services",
@@ -332,8 +434,7 @@
       "noPerson": "Not linked",
       "createInvite": "Create invitation",
       "inviteCreated": "Invitation created",
-      "linkTitle": "Share the invitation",
-      "linkLead": "Send this link to {email}. It can be used once and expires on {date}.",
+      "linkLead": "You can also share the link yourself. It can be used once and expires on {date}.",
       "copy": "Copy link",
       "copied": "Link copied",
       "whatsapp": "Send on WhatsApp",
@@ -357,7 +458,26 @@
       "revoke": "Revoke",
       "revokeTitle": "Revoke the invitation for {email}?",
       "revokeLead": "The link stops working straight away.",
-      "revoked": "Invitation revoked"
+      "revoked": "Invitation revoked",
+      "inviteSent": "Invitation emailed",
+      "delivery": {
+        "sent": {
+          "title": "Invitation emailed to {email}",
+          "lead": "They’ll get an email with a button to join."
+        },
+        "previewed": {
+          "title": "Invitation ready for {email}",
+          "lead": "Email isn’t connected yet, so a preview was saved instead of sending."
+        },
+        "skipped": {
+          "title": "Share the invitation with {email}",
+          "lead": "Email isn’t set up for this server yet."
+        },
+        "failed": {
+          "title": "Share the invitation with {email}",
+          "lead": "We couldn’t send the email just now."
+        }
+      }
     },
     "roles": {
       "title": "Roles and permissions",
@@ -418,7 +538,7 @@
     },
     "services": {
       "title": "Service times",
-      "lead": "The services ushers can open for a headcount.",
+      "lead": "The services that can be opened for a headcount.",
       "add": "Add service",
       "addTitle": "Add a service",
       "editTitle": "Edit {name}",
@@ -436,7 +556,7 @@
     },
     "categories": {
       "title": "Attendance categories",
-      "lead": "The groups ushers count at every service. This order is the order on the headcount screen.",
+      "lead": "The groups counted at every service. This order is the order on the headcount screen.",
       "add": "Add category",
       "addTitle": "Add a category",
       "editTitle": "Edit {name}",
@@ -451,6 +571,31 @@
       "hiddenToast": "Category hidden",
       "shownToast": "Category shown again",
       "hiddenNote": "Hidden categories keep their history but are no longer counted."
+    },
+    "branding": {
+      "logoTitle": "Logo",
+      "logoLead": "Shown beside your church name for everyone signed in.",
+      "logoCurrent": "Your church logo",
+      "logoNone": "No logo yet",
+      "logoHint": "PNG, JPG or WebP, square works best, up to 512 KB.",
+      "uploadLogo": "Upload logo",
+      "replaceLogo": "Replace",
+      "removeLogo": "Remove",
+      "uploading": "Uploading…",
+      "logoSaved": "Logo updated",
+      "logoRemoved": "Logo removed",
+      "themeTitle": "Colour theme",
+      "themeLead": "Every theme is tuned for readable contrast in light and dark mode.",
+      "saveTheme": "Save theme",
+      "themeSaved": "Theme updated",
+      "themes": {
+        "forest": "Forest",
+        "ocean": "Ocean",
+        "royal": "Royal",
+        "crimson": "Crimson",
+        "teal": "Teal",
+        "earth": "Earth"
+      }
     }
   },
   "invite": {
@@ -473,5 +618,31 @@
     "title": "Page not found",
     "lead": "This page doesn’t exist, or you don’t have access to it.",
     "back": "Back to dashboard"
+  },
+  "email": {
+    "linkFallback": "If the button doesn’t work, copy this link into your browser:",
+    "invitation": {
+      "subject": "{inviter} invited you to {church} on Ecclesia",
+      "preheader": "Join {church} as {role}.",
+      "heading": "You’re invited to {church}",
+      "body": "{inviter} has invited you to help run {church} on Ecclesia as {role}. Accept the invitation to create your account or sign in.",
+      "expires": "This invitation expires on {date, date, long}.",
+      "action": "Accept invitation",
+      "footnote": "If you weren’t expecting this, you can ignore this email. Nobody gets access unless the invitation is accepted."
+    },
+    "reset": {
+      "subject": "Reset your Ecclesia password",
+      "preheader": "Choose a new password for your account.",
+      "heading": "Hi {name}, let’s reset your password",
+      "body": "Someone asked to reset the password for this Ecclesia account. The link works for one hour and can be used once.",
+      "action": "Choose a new password",
+      "footnote": "If you didn’t ask for this, ignore this email. Your password stays the same."
+    }
+  },
+  "outbox": {
+    "title": "Email outbox",
+    "lead": "Email isn’t connected yet, so messages are saved here instead of being sent. Open one to see exactly what people would receive.",
+    "empty": "No emails yet. Invite someone or request a password reset to see one here.",
+    "open": "Open the outbox"
   }
 }

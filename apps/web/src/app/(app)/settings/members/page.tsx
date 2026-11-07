@@ -29,7 +29,8 @@ export default async function MembersPage() {
   const churchName = context.membership.churchName;
   const roleOptions = data.roles.map((r) => ({ id: r.id, label: localized(r.name, locale) }));
   const peopleOptions = data.people.map((p) => ({ id: p.id, label: p.name }));
-  const defaultRole = data.roles.find((r) => r.key === "usher")?.id ?? data.roles[0]?.id ?? null;
+  const defaultRole =
+    data.roles.find((r) => r.key === "teamLeader")?.id ?? data.roles[0]?.id ?? null;
   const now = Date.now();
 
   return (

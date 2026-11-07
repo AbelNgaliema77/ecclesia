@@ -22,6 +22,7 @@ const config: NextConfig = {
   transpilePackages: ["@ecclesia/db", "@ecclesia/domain"],
   serverExternalPackages: ["postgres"],
   poweredByHeader: false,
+  agentRules: false,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

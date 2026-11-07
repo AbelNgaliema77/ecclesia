@@ -22,6 +22,10 @@ Reference setup for one church: a 2 vCPU / 4 GB VPS (xneelo or Hetzner) running 
 | BETTER_AUTH_SECRET       | a random string of 32+ characters (openssl rand -base64 48) |
 | BETTER_AUTH_URL          | https://app.yourchurch.co.za                                |
 | ECCLESIA_SHOW_DEMO_LOGIN | false                                                       |
+| RESEND_API_KEY           | API key from resend.com, after verifying your domain        |
+| EMAIL_FROM               | Ecclesia <no-reply@yourchurch.co.za>                        |
+
+Without RESEND_API_KEY and EMAIL_FROM the app still runs: invitations show a link to share, and password reset by email is switched off with a clear message. Never set ECCLESIA_EMAIL_OUTBOX in production; it is for CI and local testing.
 
 4. Point the domain at the web service on port 3000 and set the health check path to /api/health.
 5. Enable automatic deploys from main. Add a second resource on a staging branch for testing changes first.

@@ -1,5 +1,5 @@
-import { displayName, initials, PERSON_STATUSES } from "@ecclesia/domain/people";
-import { Plus, Search, UsersRound } from "lucide-react";
+import { displayName, initials, PEOPLE_FILTERS } from "@ecclesia/domain/people";
+import { FileUp, Plus, Search, UsersRound } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Input, Select } from "@/components/ui/field";
 import { PageHeader } from "@/components/ui/page-header";
 import { loadPeople, parsePeopleSearch } from "@/modules/people/queries";
-import { StatusBadge } from "@/modules/people/status-badge";
+import { ServingTags, StatusBadge } from "@/modules/people/status-badge";
 
 export const metadata: Metadata = { title: "People" };
 
@@ -31,13 +31,13 @@ export default async function PeoplePage({ searchParams }: PageProps) {
   const pageHref = (page: number) => {
     const params = new URLSearchParams();
     if (search.q) params.set("q", search.q);
-    if (search.status) params.set("status", search.status);
+    if (search.filter) params.set("filter", search.filter);
     if (page > 1) params.set("page", String(page));
     const query = params.toString();
     return (query ? `/people?${query}` : "/people") as "/people";
   };
 
-  const filtered = Boolean(search.q || search.status);
+  const filtered = Boolean(search.q || search.filter);
 
   return (
     <div className="flex flex-col gap-6">
@@ -46,10 +46,18 @@ export default async function PeoplePage({ searchParams }: PageProps) {
         lead={t("lead")}
         actions={
           data.canWrite ? (
-            <Link href="/people/new" className={buttonClasses("primary")}>
-              <Plus aria-hidden className="size-4" />
-              {t("add")}
-            </Link>
+            <>
+              {data.canImport ? (
+                <Link href="/people/import" className={buttonClasses("secondary")}>
+                  <FileUp aria-hidden className="size-4" />
+                  {t("import.open")}
+                </Link>
+              ) : null}
+              <Link href="/people/new" className={buttonClasses("primary")}>
+                <Plus aria-hidden className="size-4" />
+                {t("add")}
+              </Link>
+            </>
           ) : null
         }
       />
@@ -76,14 +84,14 @@ export default async function PeoplePage({ searchParams }: PageProps) {
           />
         </div>
         <div className="sm:w-52">
-          <label htmlFor="people-status" className="sr-only">
-            {t("statusFilter")}
+          <label htmlFor="people-filter" className="sr-only">
+            {t("filterLabel")}
           </label>
-          <Select id="people-status" name="status" defaultValue={search.status ?? ""}>
-            <option value="">{t("allStatuses")}</option>
-            {PERSON_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {t(`status.${s}`)}
+          <Select id="people-filter" name="filter" defaultValue={search.filter ?? ""}>
+            <option value="">{t("filter.everyone")}</option>
+            {PEOPLE_FILTERS.map((f) => (
+              <option key={f} value={f}>
+                {t(`filter.${f}`)}
               </option>
             ))}
           </Select>
@@ -111,12 +119,15 @@ export default async function PeoplePage({ searchParams }: PageProps) {
                   {t("columns.status")}
                 </th>
                 <th scope="col" className="hidden px-4 py-3.5 md:table-cell">
+                  {t("columns.teams")}
+                </th>
+                <th scope="col" className="hidden px-4 py-3.5 xl:table-cell">
                   {t("columns.phone")}
                 </th>
-                <th scope="col" className="hidden px-4 py-3.5 lg:table-cell">
+                <th scope="col" className="hidden px-4 py-3.5 2xl:table-cell">
                   {t("columns.email")}
                 </th>
-                <th scope="col" className="hidden px-5 py-3.5 sm:table-cell">
+                <th scope="col" className="hidden px-5 py-3.5 lg:table-cell">
                   {t("columns.firstVisit")}
                 </th>
               </tr>
@@ -137,17 +148,29 @@ export default async function PeoplePage({ searchParams }: PageProps) {
                       </span>
                       <span className="group-hover:text-accent">{displayName(person)}</span>
                     </Link>
+                    {person.serving.length > 0 ? (
+                      <div className="mt-2 pl-12 md:hidden">
+                        <ServingTags serving={person.serving} />
+                      </div>
+                    ) : null}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={person.status} />
                   </td>
-                  <td className="hidden px-4 py-3 text-ink-soft md:table-cell">
+                  <td className="hidden px-4 py-3 md:table-cell">
+                    {person.serving.length > 0 ? (
+                      <ServingTags serving={person.serving} />
+                    ) : (
+                      <span className="text-ink-faint">–</span>
+                    )}
+                  </td>
+                  <td className="hidden px-4 py-3 text-ink-soft xl:table-cell">
                     {person.phone ?? "–"}
                   </td>
-                  <td className="hidden max-w-64 truncate px-4 py-3 text-ink-soft lg:table-cell">
+                  <td className="hidden max-w-64 truncate px-4 py-3 text-ink-soft 2xl:table-cell">
                     {person.email ?? "–"}
                   </td>
-                  <td className="hidden px-5 py-3 text-ink-soft sm:table-cell">
+                  <td className="hidden px-5 py-3 text-ink-soft lg:table-cell">
                     {person.firstVisitOn
                       ? format.dateTime(person.firstVisitOn, {
                           dateStyle: "medium",

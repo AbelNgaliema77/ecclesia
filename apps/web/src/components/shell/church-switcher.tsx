@@ -4,31 +4,26 @@ import { ChevronsUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { switchChurchAction } from "@/modules/preferences/actions";
+import { ChurchBadge } from "./church-badge";
 
 type ChurchSwitcherProps = {
   currentId: string;
   currentName: string;
+  logoVersion: string | null;
   churches: readonly { id: string; name: string }[];
   label: string;
 };
 
-export function ChurchSwitcher({ currentId, currentName, churches, label }: ChurchSwitcherProps) {
+export function ChurchSwitcher({
+  currentId,
+  currentName,
+  logoVersion,
+  churches,
+  label,
+}: ChurchSwitcherProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const initials = currentName
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p.charAt(0).toUpperCase())
-    .join("");
-
-  const badge = (
-    <span
-      aria-hidden
-      className="inline-flex size-9 shrink-0 items-center justify-center rounded-control bg-gold-soft text-sm font-bold text-gold-ink"
-    >
-      {initials}
-    </span>
-  );
+  const badge = <ChurchBadge name={currentName} logoVersion={logoVersion} className="size-9" />;
 
   if (churches.length < 2) {
     return (

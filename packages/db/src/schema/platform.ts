@@ -1,4 +1,5 @@
 import { SUBSCRIPTION_STATUSES } from "@ecclesia/domain/billing";
+import type { BrandTheme } from "@ecclesia/domain/settings";
 import { sql } from "drizzle-orm";
 import { boolean, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
@@ -15,8 +16,8 @@ export type ChurchFeatures = {
 };
 
 export type ChurchBranding = {
-  primaryColor: string | null;
-  logoUrl: string | null;
+  theme: BrandTheme | null;
+  logoVersion: string | null;
 };
 
 export const churches = pgTable("churches", {
@@ -30,10 +31,7 @@ export const churches = pgTable("churches", {
     .$type<ChurchFeatures>()
     .notNull()
     .default({ inventory: false, finance: false, analytics: true }),
-  branding: jsonb()
-    .$type<ChurchBranding>()
-    .notNull()
-    .default({ primaryColor: null, logoUrl: null }),
+  branding: jsonb().$type<ChurchBranding>().notNull().default({ theme: null, logoVersion: null }),
   isDemo: boolean().notNull().default(false),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),

@@ -81,6 +81,7 @@ describe("guardLastAdmin", () => {
 
   it("recognises church-wide user management", () => {
     expect(managesUsers(DEFAULT_ROLES.churchAdmin)).toBe(true);
-    expect(managesUsers(DEFAULT_ROLES.seniorPastor)).toBe(false);
+    expect(managesUsers(DEFAULT_ROLES.pastor)).toBe(true);
+    expect(managesUsers(DEFAULT_ROLES.teamLeader)).toBe(false);
   });
 });

@@ -10,6 +10,18 @@ const schema = z.object({
     .enum(["true", "false"])
     .default("false")
     .transform((value) => value === "true"),
+  RESEND_API_KEY: z.string().min(1).optional(),
+  EMAIL_FROM: z.string().min(3).optional(),
+  ECCLESIA_OUTBOX_DIR: z.string().min(1).default(".outbox"),
+  ECCLESIA_EMAIL_OUTBOX: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
 });
 
-export const env = schema.parse(process.env);
+export const env = schema
+  .refine((value) => !value.RESEND_API_KEY || value.EMAIL_FROM, {
+    message: "EMAIL_FROM is required when RESEND_API_KEY is set",
+    path: ["EMAIL_FROM"],
+  })
+  .parse(process.env);

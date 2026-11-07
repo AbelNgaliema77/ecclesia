@@ -16,7 +16,8 @@
     "db:migrate": "pnpm --filter @ecclesia/db migrate",
     "db:seed": "pnpm --filter @ecclesia/db seed",
     "db:reset": "pnpm --filter @ecclesia/db reset",
-    "check": "pnpm lint && pnpm typecheck && pnpm test"
+    "check": "pnpm lint && pnpm typecheck && pnpm test",
+    "e2e": "pnpm --filter @ecclesia/web test:e2e"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.6",

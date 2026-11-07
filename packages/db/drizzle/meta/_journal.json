@@ -29,6 +29,20 @@
       "when": 1793981428490,
       "tag": "0003_invitation_lookup",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793984310049,
+      "tag": "0004_person_status_and_roles",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793985246364,
+      "tag": "0005_church_branding",
+      "breakpoints": true
     }
   ]
 }

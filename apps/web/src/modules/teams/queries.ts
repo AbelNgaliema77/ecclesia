@@ -27,3 +27,20 @@ export const loadTeam = async (id: string) =>
         : [],
     };
   });
+
+export const loadLedTeams = async () =>
+  readChurch("teams.read", async ({ tx, actor }) => {
+    if (actor.ledTeamIds.length === 0) return [];
+    const overview = await teams.listTeamsOverview(tx);
+    return overview
+      .filter((team) => actor.ledTeamIds.includes(team.id))
+      .map((team) => {
+        const people = new Set(team.positions.flatMap((p) => p.holders.map((h) => h.personId)));
+        const open = team.positions.reduce(
+          (sum, p) =>
+            sum + (p.maxHolders === null ? 0 : Math.max(0, p.maxHolders - p.holders.length)),
+          0,
+        );
+        return { id: team.id, name: team.name, color: team.color, members: people.size, open };
+      });
+  });

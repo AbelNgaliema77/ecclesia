@@ -3,7 +3,16 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "env": ["DATABASE_URL", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL", "ECCLESIA_SHOW_DEMO_LOGIN"],
+      "env": [
+        "DATABASE_URL",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "ECCLESIA_SHOW_DEMO_LOGIN",
+        "RESEND_API_KEY",
+        "EMAIL_FROM",
+        "ECCLESIA_OUTBOX_DIR",
+        "ECCLESIA_EMAIL_OUTBOX"
+      ],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "typecheck": {

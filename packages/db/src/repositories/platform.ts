@@ -14,6 +14,7 @@ export type ChurchMembership = {
   readonly roleId: string;
   readonly personId: string | null;
   readonly features: typeof churches.$inferSelect.features;
+  readonly branding: typeof churches.$inferSelect.branding;
   readonly subscription: {
     readonly status: typeof subscriptions.$inferSelect.status;
     readonly plan: typeof subscriptions.$inferSelect.plan;
@@ -38,6 +39,7 @@ export const listMembershipsForUser = async (
       timezone: churches.timezone,
       isDemo: churches.isDemo,
       features: churches.features,
+      branding: churches.branding,
       roleId: memberships.roleId,
       personId: memberships.personId,
       status: subscriptions.status,

@@ -60,6 +60,33 @@ describe.skipIf(!appUrl || !ownerUrl)("settings and team repositories", () => {
     });
   });
 
+  it("stores the brand theme and logo per church", async () => {
+    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3]);
+    await withChurch(app, churchId, async (tx) => {
+      await settings.setBrandTheme(tx, "ocean");
+      const version = await settings.saveLogo(tx, { contentType: "image/png", data: png });
+      const church = await settings.getChurch(tx);
+      expect(church?.branding).toEqual({ theme: "ocean", logoVersion: version });
+      const logo = await settings.getLogo(tx);
+      expect(logo?.contentType).toBe("image/png");
+      expect(Array.from(logo?.data ?? [])).toEqual(Array.from(png));
+    });
+    const otherId = randomUUID();
+    await owner
+      .insert(churches)
+      .values({ id: otherId, slug: `other-${otherId.slice(0, 8)}`, name: "Other" });
+    await withChurch(app, otherId, async (tx) => {
+      expect(await settings.getLogo(tx)).toBeNull();
+    });
+    await owner.delete(churches).where(eq(churches.id, otherId));
+    await withChurch(app, churchId, async (tx) => {
+      await settings.removeLogo(tx);
+      await settings.setBrandTheme(tx, null);
+      expect(await settings.getLogo(tx)).toBeNull();
+      expect((await settings.getChurch(tx))?.branding).toEqual({ theme: null, logoVersion: null });
+    });
+  });
+
   it("lists built-in roles with member counts", async () => {
     const list = await withChurch(app, churchId, (tx) => roles.listRoles(tx));
     expect(list.every((r) => r.isSystem)).toBe(true);

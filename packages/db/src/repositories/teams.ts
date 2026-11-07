@@ -266,3 +266,28 @@ export const setAssignmentEnd = async (tx: Tx, id: string, endsOn: Date) => {
     .returning();
   return row ?? null;
 };
+
+export type ImportTarget = {
+  readonly teamId: string;
+  readonly name: LocalizedText;
+  readonly positionId: string | null;
+  readonly openSpots: number | null;
+};
+
+export const listImportTargets = async (tx: Tx): Promise<ImportTarget[]> => {
+  const overview = await listTeamsOverview(tx);
+  return overview.map((team) => {
+    const position = team.positions.find(
+      (p) => !p.isLeadership && (p.maxHolders === null || p.holders.length < p.maxHolders),
+    );
+    return {
+      teamId: team.id,
+      name: team.name,
+      positionId: position?.id ?? null,
+      openSpots:
+        position && position.maxHolders !== null
+          ? position.maxHolders - position.holders.length
+          : null,
+    };
+  });
+};

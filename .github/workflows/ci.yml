@@ -46,3 +46,50 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: ecclesia
+          POSTGRES_USER: ecclesia
+          POSTGRES_PASSWORD: ecclesia
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ecclesia -d ecclesia"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://ecclesia_app:ecclesia_app@localhost:5432/ecclesia
+      DATABASE_OWNER_URL: postgres://ecclesia:ecclesia@localhost:5432/ecclesia
+      BETTER_AUTH_SECRET: ci-secret-that-is-long-enough-for-better-auth
+      BETTER_AUTH_URL: http://localhost:3100
+      ECCLESIA_EMAIL_OUTBOX: "true"
+      ECCLESIA_OUTBOX_DIR: ${{ github.workspace }}/apps/web/.outbox
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Create application database role
+        run: PGPASSWORD=ecclesia psql -h localhost -U ecclesia -d ecclesia -f infra/postgres/init.sql
+      - run: pnpm db:migrate
+      - run: pnpm db:seed
+      - run: pnpm build
+      - name: Install Chromium
+        run: pnpm --filter @ecclesia/web exec playwright install --with-deps chromium
+      - run: pnpm e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 7

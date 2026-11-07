@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { AccountMenu } from "@/components/shell/account-menu";
+import { ChurchBadge } from "@/components/shell/church-badge";
 import { ChurchSwitcher } from "@/components/shell/church-switcher";
 import { CommandPalette } from "@/components/shell/command-palette";
 import { LocaleSwitcher } from "@/components/shell/locale-switcher";
@@ -14,6 +15,7 @@ import { ThemeSwitcher } from "@/components/shell/theme-switcher";
 import { Mark, Wordmark } from "@/components/shell/wordmark";
 import { localized } from "@/i18n/config";
 import { isTheme, THEME_COOKIE } from "@/lib/theme";
+import { OfflineSync } from "@/modules/attendance/offline/offline-sync";
 import { getChurchContext } from "@/server/context";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
@@ -95,7 +97,10 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         : null;
 
   return (
-    <div className="min-h-dvh pb-28 lg:pb-0 lg:pl-[17.5rem]">
+    <div
+      data-brand={membership.branding.theme ?? undefined}
+      className="min-h-dvh pb-28 lg:pb-0 lg:pl-[17.5rem]"
+    >
       <Sidebar
         items={items}
         label={t("main")}
@@ -104,6 +109,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           <ChurchSwitcher
             currentId={membership.churchId}
             currentName={membership.churchName}
+            logoVersion={membership.branding.logoVersion}
             churches={context.memberships.map((m) => ({ id: m.churchId, name: m.churchName }))}
             label={ts("switchChurch")}
           />
@@ -114,7 +120,15 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-20 bg-canvas/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-8 lg:h-20">
           <div className="flex min-w-0 flex-1 items-center gap-2.5 lg:hidden">
-            <Mark className="size-8 shrink-0" />
+            {membership.branding.logoVersion ? (
+              <ChurchBadge
+                name={membership.churchName}
+                logoVersion={membership.branding.logoVersion}
+                className="size-8"
+              />
+            ) : (
+              <Mark className="size-8 shrink-0" />
+            )}
             <span className="truncate text-[0.9375rem] font-semibold">{membership.churchName}</span>
           </div>
           <div className="hidden flex-1 lg:block">{palette("bar")}</div>
@@ -141,6 +155,8 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           </p>
         </div>
       ) : null}
+
+      {can(actor, "attendance.capture") ? <OfflineSync churchId={membership.churchId} /> : null}
 
       <main className="mx-auto w-full max-w-6xl px-4 pt-6 pb-10 sm:px-8 lg:pt-8">{children}</main>
 
